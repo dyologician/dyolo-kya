@@ -1,0 +1,41 @@
+[package]
+name        = "dyolo-kya-gateway"
+version     = "2.0.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "Language-agnostic REST sidecar for dyolo-kya — authorize AI agent delegation chains over HTTP"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/dyolo-kya"
+
+[[bin]]
+name = "dyolo-kya-gateway"
+path = "src/main.rs"
+
+[dependencies]
+dyolo-kya    = { path = "..", version = "2.0", features = ["serde", "wire", "async", "tracing"] }
+dyolo-kya-redis = { path = "../dyolo-kya-redis", version = "2.0" }
+dyolo-kya-pg    = { path = "../dyolo-kya-pg",    version = "2.0" }
+axum         = { version = "0.7", features = ["json"] }
+tokio        = { version = "1", features = ["full"] }
+tower-http   = { version = "0.5", features = ["cors", "trace"] }
+serde        = { version = "1", features = ["derive"] }
+serde_json   = "1"
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+hex          = "0.4"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand         = "0.8"
+anyhow       = "1"
+zeroize      = { version = "1", features = ["derive"] }
+sqlx         = { version = "0.8", features = ["runtime-tokio", "postgres"] }
+governor     = { version = "0.6", default-features = false, features = ["std", "quanta"] }
+tower        = "0.4"
+axum-client-ip = "0.6"
+metrics      = { version = "0.22", optional = true }
+opentelemetry = { version = "0.23", optional = true }
+opentelemetry-otlp = { version = "0.17", optional = true }
+prometheus   = { version = "0.13", optional = true }
+
+[features]
+default = []
+telemetry = ["dep:metrics", "dep:opentelemetry", "dep:opentelemetry-otlp", "dep:prometheus"]

@@ -1,0 +1,34 @@
+[build-system]
+requires      = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name         = "dyolo-kya"
+version      = "2.0.0"
+description  = "Know Your Agent — Python SDK for AI agent delegation authorization"
+readme       = "README.md"
+license      = { text = "MIT OR Apache-2.0" }
+authors      = [{ name = "dyolo", email = "dyologician@users.noreply.github.com" }]
+requires-python = ">=3.9"
+keywords     = ["ai-agents", "delegation", "cryptography", "authorization"]
+classifiers  = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Security :: Cryptography",
+    "Programming Language :: Python :: 3",
+]
+dependencies = ["httpx>=0.27"]
+
+[project.optional-dependencies]
+langchain  = ["langchain-core>=0.2"]
+openai     = ["openai>=1.0"]
+autogen    = ["pyautogen>=0.2"]
+dev        = ["pytest", "pytest-asyncio", "respx"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths    = ["tests"]
+
+[project.urls]
+Repository    = "https://github.com/dyologician/dyolo-kya"
+Documentation = "https://docs.rs/dyolo-kya"

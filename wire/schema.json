@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dyologician/dyolo-kya/raw/main/wire/schema.json",
+  "title": "dyolo-kya Wire Format",
+  "description": "JSON Schema for dyolo-kya v2 wire types: SignedChain and VerifiedToken.",
+  "version": "2.0.0",
+
+  "$defs": {
+    "Hex32": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Hex-encoded 32-byte value (64 lowercase hex characters)."
+    },
+    "Hex64": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{128}$",
+      "description": "Hex-encoded 64-byte value (128 lowercase hex characters — Ed25519 signature)."
+    },
+    "Hex16": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "Hex-encoded 16-byte value (32 lowercase hex characters — nonce)."
+    },
+
+    "SubScopeProofNode": {
+      "type": "object",
+      "required": ["hash", "is_left"],
+      "additionalProperties": false,
+      "properties": {
+        "hash":    { "$ref": "#/$defs/Hex32" },
+        "is_left": { "type": "boolean" }
+      }
+    },
+
+    "SubScopeProof": {
+      "type": "object",
+      "description": "Merkle inclusion proof demonstrating scope narrowing.",
+      "required": ["subset_intents", "proofs"],
+      "additionalProperties": false,
+      "properties": {
+        "subset_intents": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Hex32" },
+          "description": "BLAKE3 hashes of the delegated intent subset."
+        },
+        "proofs": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/SubScopeProofNode" }
+          },
+          "description": "One Merkle proof path per intent in subset_intents."
+        }
+      }
+    },
+
+    "CertExtensions": {
+      "type": "object",
+      "description": "Arbitrary key-value metadata committed into the cert signature.",
+      "additionalProperties": true,
+      "properties": {
+        "dyolo.cost_center":  { "type": "string" },
+        "dyolo.environment":  { "type": "string" },
+        "dyolo.trace_id":     { "type": "string" },
+        "dyolo.max_usd":      { "type": "string" }
+      }
+    },
+
+    "DelegationCert": {
+      "type": "object",
+      "description": "A single cryptographically-signed delegation hop.",
+      "required": [
+        "version", "delegator_pk", "delegate_pk", "scope_root",
+        "scope_proof", "nonce", "issued_at", "expiration_unix",
+        "max_depth", "signature"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version":         { "type": "integer", "const": 1 },
+        "delegator_pk":    { "$ref": "#/$defs/Hex32" },
+        "delegate_pk":     { "$ref": "#/$defs/Hex32" },
+        "scope_root":      { "$ref": "#/$defs/Hex32" },
+        "scope_proof":     { "$ref": "#/$defs/SubScopeProof" },
+        "nonce":           { "$ref": "#/$defs/Hex16" },
+        "issued_at":       { "type": "integer", "minimum": 0 },
+        "expiration_unix": { "type": "integer", "minimum": 0 },
+        "max_depth":       { "type": "integer", "minimum": 0, "maximum": 255 },
+        "extensions":      { "$ref": "#/$defs/CertExtensions" },
+        "signature":       { "$ref": "#/$defs/Hex64" }
+      }
+    },
+
+    "SignedChain": {
+      "type": "object",
+      "description": "A portable, verifiable delegation chain from a human principal to an executing agent.",
+      "required": ["version", "principal_pk", "principal_scope", "certs"],
+      "additionalProperties": false,
+      "properties": {
+        "version":         { "type": "integer", "const": 1 },
+        "principal_pk":    { "$ref": "#/$defs/Hex32" },
+        "principal_scope": { "$ref": "#/$defs/Hex32" },
+        "certs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DelegationCert" },
+          "minItems": 0
+        }
+      }
+    },
+
+    "VerificationReceipt": {
+      "type": "object",
+      "required": ["chain_depth", "verified_scope_root", "intent", "verified_at_unix", "chain_fingerprint"],
+      "additionalProperties": false,
+      "properties": {
+        "chain_depth":         { "type": "integer", "minimum": 0 },
+        "verified_scope_root": { "$ref": "#/$defs/Hex32" },
+        "intent":              { "type": "string" },
+        "verified_at_unix":    { "type": "integer", "minimum": 0 },
+        "chain_fingerprint":   { "$ref": "#/$defs/Hex32" }
+      }
+    },
+
+    "VerifiedToken": {
+      "type": "object",
+      "description": "Gateway-signed receipt verifiable without re-running the full chain.",
+      "required": ["receipt", "mac"],
+      "additionalProperties": false,
+      "properties": {
+        "receipt": { "$ref": "#/$defs/VerificationReceipt" },
+        "mac":     { "$ref": "#/$defs/Hex32" }
+      }
+    }
+  },
+
+  "oneOf": [
+    { "$ref": "#/$defs/SignedChain" },
+    { "$ref": "#/$defs/VerifiedToken" }
+  ]
+}

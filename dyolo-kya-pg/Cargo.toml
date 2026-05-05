@@ -1,0 +1,19 @@
+[package]
+name        = "dyolo-kya-pg"
+version     = "2.0.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "PostgreSQL RevocationStore and NonceStore backends for dyolo-kya"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/dyolo-kya"
+keywords    = ["ai-agents", "delegation", "authorization", "postgres"]
+
+[features]
+default = []
+
+[dependencies]
+dyolo-kya  = { path = "..", version = "2.0", features = ["async"] }
+sqlx       = { version = "0.8", features = ["postgres", "runtime-tokio", "macros"] }
+async-trait = "0.1"
+hex         = "0.4"
+thiserror   = "1"

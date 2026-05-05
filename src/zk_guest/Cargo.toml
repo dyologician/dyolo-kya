@@ -1,0 +1,15 @@
+[package]
+name    = "dyolo-kya-zkguest"
+version = "1.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "dyolo-kya-zkguest"
+path = "src/main.rs"
+
+[dependencies]
+risc0-zkvm  = { version = "0.20", default-features = false, features = ["guest"] }
+blake3      = "1"
+ed25519-dalek = { version = "2" }
+subtle      = { version = "2.5", default-features = false }

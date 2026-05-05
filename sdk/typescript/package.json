@@ -1,0 +1,71 @@
+{
+  "name": "dyolo-kya",
+  "version": "2.0.0",
+  "description": "TypeScript/Node.js client for dyolo-kya: cryptographic chain-of-custody for recursive AI agent delegation",
+  "author": "dyolo <@dyologician>",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://github.com/dyologician/dyolo-kya",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dyologician/dyolo-kya.git"
+  },
+  "keywords": [
+    "ai-agents",
+    "delegation",
+    "authorization",
+    "cryptography",
+    "langchain",
+    "openai",
+    "autogen"
+  ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./integrations": {
+      "import": {
+        "types": "./dist/esm/integrations.d.ts",
+        "default": "./dist/esm/integrations.js"
+      },
+      "require": {
+        "types": "./dist/cjs/integrations.d.ts",
+        "default": "./dist/cjs/integrations.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "npm run build:esm && npm run build:cjs",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
+    "typescript": "^5.4.0"
+  }
+}

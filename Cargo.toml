@@ -1,0 +1,84 @@
+[workspace]
+members  = [
+    ".",
+    "dyolo-kya-redis",
+    "dyolo-kya-gateway",
+    "dyolo-kya-cli",
+    "dyolo-kya-pg",
+    "dyolo-kya-identity",
+]
+resolver = "2"
+
+[workspace.dependencies]
+blake3        = "1"
+subtle        = { version = "2.5", default-features = false }
+ed25519-dalek = { version = "2", features = ["rand_core", "zeroize", "batch"] }
+rand          = "0.8"
+thiserror     = "1"
+zeroize       = { version = "1", features = ["derive"] }
+hex           = "0.4"
+serde         = { version = "1", features = ["derive"] }
+serde_json    = "1"
+async-trait   = "0.1"
+tokio         = { version = "1", features = ["full"] }
+tracing       = "0.1"
+
+[package]
+name          = "dyolo-kya"
+version       = "2.0.0"
+edition       = "2021"
+authors       = ["dyolo <@dyologician>"]
+description   = "Know Your Agent (KYA): cryptographic chain-of-custody for recursive AI delegation with provable scope narrowing, namespace isolation, and enterprise-grade storage health"
+license       = "MIT OR Apache-2.0"
+repository    = "https://github.com/dyologician/dyolo-kya"
+documentation = "https://docs.rs/dyolo-kya"
+readme        = "README.md"
+keywords      = ["ai-agents", "delegation", "cryptography", "authorization", "zero-knowledge"]
+categories    = ["cryptography", "authentication"]
+rust-version  = "1.82"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default     = []
+serde       = ["dep:serde", "ed25519-dalek/serde"]
+async       = ["dep:async-trait", "dep:tokio"]
+wire        = ["serde", "dep:serde_json"]
+tracing     = ["dep:tracing"]
+ffi         = ["wire"]
+policy-yaml = ["serde", "dep:serde_yaml"]
+schema      = ["dep:schemars"]
+otel        = ["dep:opentelemetry"]
+cbor        = ["wire", "dep:ciborium"]
+full        = ["serde", "async", "wire", "tracing", "ffi", "policy-yaml", "schema", "otel", "cbor"]
+
+[dependencies]
+blake3        = { workspace = true }
+subtle        = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand          = { workspace = true }
+thiserror     = { workspace = true }
+zeroize       = { workspace = true }
+hex           = { workspace = true }
+serde         = { workspace = true, optional = true }
+serde_json    = { workspace = true, optional = true }
+async-trait   = { workspace = true, optional = true }
+tokio         = { workspace = true, optional = true, features = ["rt"] }
+tracing       = { workspace = true, optional = true }
+serde_yaml    = { version = "0.9", optional = true }
+schemars      = { version = "0.8", optional = true }
+opentelemetry = { version = "0.23", default-features = false, features = ["trace"], optional = true }
+ciborium      = { version = "0.2", optional = true }
+
+[dev-dependencies]
+hex        = { workspace = true }
+criterion  = { version = "0.5", features = ["html_reports"] }
+tokio      = { workspace = true }
+serde_json = { workspace = true }
+proptest   = "1"
+
+[[bench]]
+name    = "chain_bench"
+harness = false

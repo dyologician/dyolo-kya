@@ -1,0 +1,41 @@
+# trading_chain.yaml
+#
+# Declarative delegation policy consumed by:
+#   dyolo-kya issue --policy trading_chain.yaml
+#   dyolo-kya-identity PolicyDocument::from_yaml(...)
+#
+# All timestamps are in seconds.  ttl_seconds is added to the current wall
+# clock at issuance time.
+
+version: 1
+
+# The Ed25519 public key of the delegate agent (hex).
+delegate_pk_hex: "<agent-ed25519-pk-hex>"
+
+# Maximum delegation depth this cert is allowed to sub-delegate.
+max_depth: 8
+
+# Cert lifetime.
+ttl_seconds: 3600
+
+# Intent scope — the delegate may only execute actions whose name matches one
+# of the entries below.  Each entry may bind concrete parameter values to
+# further narrow the scope.
+intents:
+  - name: trade.equity
+    params:
+      exchange: NYSE
+  - name: trade.equity
+    params:
+      exchange: NASDAQ
+  - name: portfolio.read
+
+# Typed extension fields that are committed into the cert signature.
+# Enterprise teams use these for cost attribution, geo-fencing, rate limits,
+# and audit metadata.
+extensions:
+  dyolo.cost_center:   "ai-trading-desk"
+  dyolo.environment:   "production"
+  dyolo.rate_limit:    100
+  dyolo.geo:           "us-east-1"
+  dyolo.audit_tag:     "SOX-2025-Q2"

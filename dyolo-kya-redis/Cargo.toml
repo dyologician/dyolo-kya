@@ -1,0 +1,29 @@
+[package]
+name        = "dyolo-kya-redis"
+version     = "2.0.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "Redis-backed RevocationStore and NonceStore for dyolo-kya production deployments"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/dyolo-kya"
+documentation = "https://docs.rs/dyolo-kya-redis"
+readme      = "README.md"
+keywords    = ["ai-agents", "delegation", "redis", "authorization", "cryptography"]
+categories  = ["cryptography", "authentication", "database"]
+rust-version = "1.82"
+
+[features]
+default = ["async"]
+# async — AsyncRevocationStore + AsyncNonceStore via deadpool-redis
+async   = ["dep:deadpool-redis", "dep:async-trait", "dyolo-kya/async"]
+
+[dependencies]
+dyolo-kya    = { path = "..", version = "2.0.0", features = ["async"] }
+redis        = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
+deadpool-redis = { version = "0.15", optional = true }
+async-trait  = { version = "0.1", optional = true }
+thiserror    = "1"
+hex          = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: dyolo-kya-gateway:local
+    ports:
+      - "8080:8080"
+    environment:
+      # Generate stable keys once with:
+      #   openssl rand -hex 32
+      # and store them in a .env file or your secret manager.
+      DYOLO_SIGNING_KEY_HEX: ${DYOLO_SIGNING_KEY_HEX:-}
+      DYOLO_MAC_KEY_HEX:     ${DYOLO_MAC_KEY_HEX:-}
+      DYOLO_REDIS_URL:       redis://redis:6379/0
+      DYOLO_PG_URL:          postgres://kya:kyapassword@postgres:5432/kyadb
+      GATEWAY_ADDR:          0.0.0.0:8080
+      RUST_LOG:              dyolo_kya_gateway=info,tower_http=info
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c", "wget -qO- http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kya
+      POSTGRES_PASSWORD: kyapassword
+      POSTGRES_DB: kyadb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kya -d kyadb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
