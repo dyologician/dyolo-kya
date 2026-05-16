@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "a1": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp",
+      "description": "A1 — cryptographic authorization for AI agents. Verifies that agents are allowed to perform actions before executing them.",
+      "tools": [
+        "a1_authorize",
+        "a1_check_health",
+        "a1_inspect_passport",
+        "a1_list_capabilities",
+        "a1_issue_cert",
+        "a1_revoke"
+      ]
+    }
+  }
+}

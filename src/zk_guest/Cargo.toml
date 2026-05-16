@@ -1,0 +1,15 @@
+[package]
+name    = "a1-zkguest"
+version = "1.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "a1-zkguest"
+path = "src/main.rs"
+
+[dependencies]
+risc0-zkvm  = { version = "2.3.2", default-features = false, features = ["guest"] }
+blake3      = "1"
+ed25519-dalek = { version = "2" }
+subtle      = { version = "2.5", default-features = false }

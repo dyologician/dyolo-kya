@@ -1,0 +1,28 @@
+[package]
+name        = "a1-identity"
+version     = "2.8.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "JWT/OIDC, OAuth2, and SPIFFE identity bridging for A1 — bind enterprise identities to Ed25519 delegation keys"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/a1"
+keywords    = ["ai-agents", "delegation", "jwt", "oidc", "spiffe"]
+
+[features]
+default  = ["jwt", "serde"]
+jwt      = ["dep:jsonwebtoken"]
+policy   = ["dep:serde_yaml"]
+spiffe   = []
+serde    = []
+
+[dependencies]
+# Enforce strict semantic version matching for the A1 core
+a1            = { path = "..", version = "=2.8.0", features = ["serde", "wire"] }
+serde         = { version = "1", features = ["derive"] }
+serde_json    = "1"
+thiserror     = "1"
+blake3        = "1"
+ed25519-dalek = { version = "2" }
+hex           = "0.4"
+jsonwebtoken  = { version = "10.3.0", optional = true }
+serde_yaml    = { version = "0.9", optional = true }

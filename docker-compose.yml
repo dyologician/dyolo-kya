@@ -1,0 +1,16 @@
+# A1 — Know Your Agent  v2.8.0
+# https://github.com/dyologician/a1
+#
+# Quick start:   docker compose up -d
+# Stop:          docker compose down
+# Logs:          docker compose logs -f gateway
+#
+# Once running:
+#   Gateway:   http://localhost:8080
+#   Health:    http://localhost:8080/healthz
+#   Studio:    http://localhost:8080/studio
+#
+# For production with persistent storage, copy env.example to .env first.
+
+include:
+  - path: docker/docker-compose.yml

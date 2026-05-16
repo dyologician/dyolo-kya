@@ -1,0 +1,101 @@
+name: Bug Report
+description: Report a bug in A1 — cryptographic issues get highest priority
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Before filing:** Search existing issues first.
+        For **security vulnerabilities**, email workwithdyolo@gmail.com — do not open a public issue.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of A1 is affected?
+      options:
+        - Core Rust crate (a1)
+        - Gateway (a1-gateway)
+        - CLI (a1-cli)
+        - Python SDK
+        - TypeScript SDK
+        - Go SDK
+        - A1 Studio (web dashboard)
+        - PostgreSQL adapter (a1-pg)
+        - Redis adapter (a1-redis)
+        - Identity layer (a1-identity)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: A1 version
+      options:
+        - "2.8.0 (latest)"
+        - "2.8.0"
+        - "2.1.x"
+        - "Other (specify in description)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug. Include any error messages verbatim.
+      placeholder: |
+        When I call passport.guard_local(...), I get:
+        Error: PassportNarrowingViolation { ... }
+        But the sub-cert was issued with a capability that is a strict subset of the parent.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproducer
+      description: The smallest possible code or command that triggers the bug.
+      render: rust
+      placeholder: |
+        use a1::{DyoloPassport, DyoloIdentity, SystemClock};
+        let root_id = DyoloIdentity::generate();
+        let passport = DyoloPassport::issue("my-ns", &["trade.equity"], 86400, &root_id, &SystemClock)?;
+        // ... minimal steps to reproduce
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      placeholder: Authorization should succeed and return a ProvableReceipt.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Rust/Python/Node/Go version, relevant env vars (redact secrets).
+      placeholder: |
+        - OS: macOS 15.4 / Ubuntu 24.04
+        - Rust: 1.85.0
+        - Storage backend: Redis 7.2
+        - Feature flags: full
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing open and closed issues
+          required: true
+        - label: I am not reporting a security vulnerability (those go to workwithdyolo@gmail.com)
+          required: true
+        - label: My reproducer does not contain real private keys or passport files
+          required: true

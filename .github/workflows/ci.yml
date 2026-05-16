@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────
+  # Rust: core crate + all sub-crates
+  # ─────────────────────────────────────────
+  rust:
+    name: Rust Core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Enforce formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy (zero warnings)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests (all features)
+        run: cargo test --all-features
+
+      - name: Security audit
+        run: |
+          cargo install cargo-audit --quiet
+          cargo audit
+
+      - name: Publish dry-run (core crate only)
+        run: cargo publish --dry-run -p a1
+        # Sub-crate dry-runs are omitted from CI because they depend on
+        # `a1 = "2.8"` from crates.io (not the local path) when packaging.
+        # They will only pass after `a1` v2.8.0 is published to crates.io.
+        #
+        # See PUBLISHING.md for the full manual publish order and checklist.
+
+  # ─────────────────────────────────────────
+  # Python SDK
+  # ─────────────────────────────────────────
+  python:
+    name: Python SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/python
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run Pytest
+        run: pytest --tb=short
+
+  # ─────────────────────────────────────────
+  # TypeScript SDK
+  # ─────────────────────────────────────────
+  typescript:
+    name: TypeScript SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/typescript
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: sdk/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify types
+        run: npx tsc --noEmit
+
+      - name: Run Jest
+        run: npx jest --passWithNoTests
+
+      - name: Build (ESM + CJS)
+        run: npm run build
+
+  # ─────────────────────────────────────────
+  # Go SDK
+  # ─────────────────────────────────────────
+  go:
+    name: Go SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/go
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+          cache-dependency-path: sdk/go/go.sum
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Run tests (race detector)
+        run: go test -race ./...

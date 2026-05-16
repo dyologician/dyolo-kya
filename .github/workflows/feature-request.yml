@@ -1,0 +1,71 @@
+name: Feature Request
+description: Propose a new capability, SDK integration, or improvement
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests that align with A1's core mission (cryptographic chain-of-custody for agent delegation) get prioritized. Read [WHY_A1.md](https://github.com/dyologician/a1/blob/main/WHY_A1.md) to understand what we are building.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - New framework integration (LangChain, AutoGen, etc.)
+        - New KMS / Vault backend
+        - New storage backend (Redis, Postgres, etc.)
+        - New SIEM / audit exporter
+        - Gateway REST API
+        - CLI
+        - A1 Studio (web dashboard)
+        - Protocol / wire format
+        - Performance
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation where this is missing or painful.
+      placeholder: |
+        When deploying A1 in a Kubernetes environment, there is no native integration
+        with Kubernetes ServiceAccount tokens for bootstrapping delegation chains.
+        We currently have to manually exchange tokens via the JWT bridge, which
+        requires extra plumbing for every deployment.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like A1 to do? Code sketches are welcome.
+      placeholder: |
+        A new /v1/k8s/exchange endpoint (similar to /v1/jwt/exchange) that
+        accepts a Kubernetes ServiceAccount JWT and verifies it against the
+        cluster's OIDC discovery endpoint automatically.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: |
+        We could configure A1_JWT_JWKS_URL to point at the Kubernetes OIDC
+        endpoint, but that requires knowing the cluster's issuer URL up front
+        and does not handle service account token rotation cleanly.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this has not been requested before
+          required: true
+        - label: This request does not weaken the cryptographic security model
+          required: true

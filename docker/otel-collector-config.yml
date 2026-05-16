@@ -1,0 +1,43 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 256
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  resource:
+    attributes:
+      - key: a1.provenance
+        value: "64796f6c6f"
+        action: insert
+
+exporters:
+  # Log spans to stdout for local development
+  debug:
+    verbosity: basic
+  # Uncomment and configure for production backends:
+  # otlp/datadog:
+  #   endpoint: https://trace.agent.datadoghq.com
+  #   headers:
+  #     DD-API-KEY: ${DD_API_KEY}
+  # otlp/jaeger:
+  #   endpoint: http://jaeger:4317
+  # otlphttp/honeycomb:
+  #   endpoint: https://api.honeycomb.io
+  #   headers:
+  #     x-honeycomb-team: ${HONEYCOMB_API_KEY}
+
+service:
+  pipelines:
+    traces:
+      receivers:  [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters:  [debug]

@@ -1,0 +1,54 @@
+/* ─── How It Works — Infographic Diagram ─────────────────────────────────── */
+.inf-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0;}
+.inf-col{display:flex;flex-direction:column;border-radius:var(--r);overflow:hidden;border:1px solid var(--b1);transition:transform .2s,box-shadow .2s;}
+.inf-col:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.25);}
+.inf-hdr{padding:12px 14px;text-align:center;}
+.inf-hdr-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;margin-right:6px;}
+.inf-hdr-title{font-weight:700;font-size:var(--fbase);}
+.inf-hdr-sub{font-size:var(--fxs);margin-top:2px;opacity:.8;}
+.inf-col.no-auth  .inf-hdr{background:rgba(239,68,68,.18);border-bottom:2px solid rgba(239,68,68,.4);}
+.inf-col.jwt-auth .inf-hdr{background:rgba(234,179,8,.14);border-bottom:2px solid rgba(234,179,8,.35);}
+.inf-col.a1-auth  .inf-hdr{background:rgba(34,197,94,.14);border-bottom:2px solid rgba(34,197,94,.35);}
+.inf-col.no-auth  .inf-hdr-num{background:rgba(239,68,68,.3);color:#ef4444;}
+.inf-col.jwt-auth .inf-hdr-num{background:rgba(234,179,8,.3);color:#ca8a04;}
+.inf-col.a1-auth  .inf-hdr-num{background:rgba(34,197,94,.3);color:var(--green);}
+.inf-col.no-auth  .inf-hdr-title{color:#ef4444;}
+.inf-col.jwt-auth .inf-hdr-title{color:#ca8a04;}
+.inf-col.a1-auth  .inf-hdr-title{color:var(--green);}
+.inf-body{flex:1;background:var(--s2);padding:10px 10px 6px;}
+.inf-step{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:5px;margin-bottom:4px;font-size:var(--fxs);line-height:1.4;border:1px solid transparent;}
+.inf-step.ok{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2);}
+.inf-step.bad{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);}
+.inf-step.warn{background:rgba(234,179,8,.06);border-color:rgba(234,179,8,.2);}
+.inf-step.neutral{background:var(--s3);border-color:var(--b1);}
+.inf-step-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.inf-step-text strong{display:block;font-weight:600;margin-bottom:1px;}
+.inf-step-text span{color:var(--t2);}
+.inf-arrow{text-align:center;font-size:14px;line-height:1;padding:2px 0;opacity:.6;}
+.inf-arrow.red{color:#ef4444;}
+.inf-arrow.yellow{color:#ca8a04;}
+.inf-arrow.green{color:var(--green);opacity:.9;}
+.inf-gaps{padding:8px 10px;border-top:1px solid var(--b1);background:var(--s3);}
+.inf-gaps-title{font-size:var(--fxs);font-weight:600;margin-bottom:4px;}
+.inf-gap-item{display:flex;align-items:flex-start;gap:5px;font-size:var(--fxs);color:var(--t2);line-height:1.4;margin-bottom:3px;}
+.inf-col.no-auth  .inf-gaps-title{color:#ef4444;}
+.inf-col.jwt-auth .inf-gaps-title{color:#ca8a04;}
+.inf-col.a1-auth  .inf-gaps-title{color:var(--green);}
+.inf-usefor{margin:8px 10px 10px;padding:6px 10px;border-radius:4px;font-size:var(--fxs);}
+.inf-usefor-label{font-weight:700;margin-right:4px;}
+.inf-col.no-auth  .inf-usefor{background:rgba(239,68,68,.1);color:#ef4444;}
+.inf-col.jwt-auth .inf-usefor{background:rgba(234,179,8,.1);color:#ca8a04;}
+.inf-col.a1-auth  .inf-usefor{background:rgba(34,197,94,.1);color:var(--green);}
+@keyframes inf-pulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+.inf-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;animation:inf-pulse 1.8s infinite;}
+.inf-col.no-auth  .inf-dot{background:#ef4444;}
+.inf-col.jwt-auth .inf-dot{background:#ca8a04;}
+.inf-col.a1-auth  .inf-dot{background:var(--green);animation-delay:.3s;}
+/* comparison table */
+.inf-tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:var(--fxs);}
+.inf-tbl th{padding:7px 10px;text-align:left;background:var(--s3);border:1px solid var(--b1);font-weight:600;font-size:var(--fxs);}
+.inf-tbl td{padding:6px 10px;border:1px solid var(--b1);vertical-align:middle;line-height:1.5;}
+.inf-tbl tr:hover td{background:var(--s2);}
+.itok{color:var(--green);}
+.itbad{color:#ef4444;}
+.itmid{color:#ca8a04;}

@@ -1,0 +1,18 @@
+/* ─── Connect Agents tab ──────────────────────────────────────────────────── */
+.ag-card{border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;background:var(--s2);transition:border-color .15s;}
+.ag-card.connected{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.04);}
+.ag-icon{font-size:26px;flex-shrink:0;line-height:1;margin-top:2px;}
+.ag-info{flex:1;min-width:0;}
+.ag-name{font-weight:600;font-size:var(--fsm);display:flex;align-items:center;gap:7px;}
+.ag-desc{color:var(--t2);font-size:var(--fxs);margin-top:2px;line-height:1.5;}
+.ag-path{font-family:var(--mono);font-size:var(--fxs);color:var(--t2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;}
+.ag-hint{font-size:var(--fxs);color:var(--t2);font-style:italic;margin-top:3px;}
+.ag-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.ag-badge{font-size:var(--fxs);padding:2px 8px;border-radius:3px;font-family:var(--mono);}
+.ag-badge.found{background:rgba(34,197,94,.12);color:var(--green);}
+.ag-badge.ok{background:rgba(34,197,94,.2);color:var(--green);}
+.ag-badge.miss{background:var(--b1);color:var(--t2);}
+.ag-result{margin-top:8px;padding:10px 14px;border-radius:var(--r);font-size:var(--fsm);line-height:1.6;}
+.ag-result.ok{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);}
+.ag-result.err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);}
+

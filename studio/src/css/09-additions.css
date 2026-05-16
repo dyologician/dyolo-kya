@@ -1,0 +1,53 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   v2.8.0 additions — enhanced mobile, passport dashboard, local LLM
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Passport dashboard row ─────────────────────────────────────────────────── */
+.dash-row{transition:box-shadow .15s;}
+.dash-row:hover{box-shadow:0 0 0 1px var(--b2);}
+
+/* ── Stats grid responsive collapse ─────────────────────────────────────────── */
+@media(max-width:480px){
+  /* 2-column stats on small screens */
+  .dash-stats-grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* ── Better mobile touch targets ─────────────────────────────────────────────── */
+@media(max-width:768px){
+  .btn{min-height:36px;padding:6px 14px;}
+  .btn-sm{min-height:32px;}
+  select,input[type="text"]{min-height:36px;font-size:16px!important;}
+  .sb-item{padding:11px 16px;}
+  .sb-hamburger{min-width:44px;min-height:44px;}
+  .pp-card .btn,.dash-row .btn{min-height:38px;font-size:var(--fsm)!important;}
+  .tog{transform:scale(1.15);transform-origin:right center;}
+  .log-entry{padding:8px 0;}
+}
+
+/* ── Prevents iOS zoom on input focus ──────────────────────────────────────── */
+@media(max-width:768px){
+  input,select,textarea{font-size:16px;}
+}
+
+/* ── Local LLM provider card hover ─────────────────────────────────────────── */
+@media(hover:hover){
+  .local-prov-card:hover{border-color:var(--accent)!important;background:rgba(99,102,241,.05)!important;}
+}
+
+/* ── Code block scrollbar ───────────────────────────────────────────────────── */
+pre::-webkit-scrollbar{height:4px;width:4px;}
+pre::-webkit-scrollbar-thumb{background:var(--b3);border-radius:2px;}
+
+/* ── Revoke button — larger tap area on mobile ──────────────────────────────── */
+@media(max-width:600px){
+  .revoke-btn-wrap{width:100%;}
+  .revoke-btn-wrap button{width:100%;justify-content:center;}
+}
+
+/* ── Dash search input focus ring ───────────────────────────────────────────── */
+input[type="text"]:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(99,102,241,.18);}
+
+/* ── Passport stat tiles mobile ─────────────────────────────────────────────── */
+@media(max-width:520px){
+  .dash-stat-grid{grid-template-columns:repeat(2,1fr)!important;}
+}

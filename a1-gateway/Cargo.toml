@@ -1,0 +1,49 @@
+[package]
+name        = "a1-gateway"
+version     = "2.8.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "Language-agnostic REST sidecar for A1 — authorize AI agent delegation chains over HTTP"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/a1"
+
+[[bin]]
+name = "a1-gateway"
+path = "src/main.rs"
+
+[dependencies]
+a1           = { path = "..", version = "=2.8.0", features = ["serde", "wire", "async", "tracing", "did", "zk", "anchor", "negotiate", "swarm", "governance"] }
+a1-redis     = { path = "../a1-redis", version = "2.8" }
+a1-pg        = { path = "../a1-pg",    version = "2.8" }
+axum         = { version = "0.7", features = ["json", "macros"] }
+futures      = "0.3"
+tokio        = { version = "1", features = ["full"] }
+tower-http   = { version = "0.5", features = ["cors", "trace"] }
+libc         = "0.2"
+serde        = { version = "1", features = ["derive"] }
+serde_json   = "1"
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+hex          = "0.4"
+blake3       = "1"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand         = "0.8"
+anyhow       = "1"
+zeroize      = { version = "1", features = ["derive"] }
+sqlx         = { version = "0.8", features = ["runtime-tokio", "postgres"] }
+governor     = { version = "0.6", default-features = false, features = ["std", "quanta"] }
+tower        = "0.4"
+axum-client-ip = "0.6"
+metrics      = { version = "0.22", optional = true }
+opentelemetry = { version = "0.23", optional = true }
+opentelemetry-otlp = { version = "0.17", optional = true }
+
+tokio-stream = "0.1"
+reqwest     = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+ring        = "0.17"
+url         = "2"
+base64      = "0.22"
+
+[features]
+default   = []
+telemetry = ["dep:metrics", "dep:opentelemetry", "dep:opentelemetry-otlp"]

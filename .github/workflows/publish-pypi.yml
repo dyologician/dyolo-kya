@@ -1,0 +1,50 @@
+name: Publish Python SDK to PyPI
+
+on:
+  # Trigger automatically when a GitHub Release is published
+  release:
+    types: [published]
+  # Or trigger manually from the GitHub Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Required for PyPI trusted publisher (OIDC)
+  id-token: write
+
+jobs:
+  publish:
+    name: Build and publish a1 to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/a1
+    defaults:
+      run:
+        working-directory: sdk/python
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run tests before publishing
+        run: pytest --tb=short
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build source distribution and wheel
+        run: python -m build
+
+      - name: Publish to PyPI (trusted publisher / OIDC)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdk/python/dist/

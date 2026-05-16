@@ -1,0 +1,35 @@
+# cbindgen configuration for a1 C header generation.
+#
+# Run:   cbindgen --config cbindgen.toml --output include/a1.h
+# Docs:  https://github.com/mozilla/cbindgen/blob/master/docs.md
+
+language = "C"
+
+# Only export symbols from src/ffi.rs
+include_guard = "DYOLO_A1_H"
+tab_width = 4
+documentation = true
+documentation_style = "doxy"
+
+[export]
+prefix = "Dyolo"
+include = [
+    "A1Status",
+    "OpaqueIdentity",
+    "OpaqueChain",
+]
+
+[fn]
+prefix = "dyolo_"
+rename_args = "snake_case"
+
+[enum]
+rename_variants = "ScreamingSnakeCase"
+
+[layout]
+packed = false
+aligned_n = 0
+
+[defines]
+"feature = ffi" = "DYOLO_A1_FFI"
+"feature = wire" = "DYOLO_A1_WIRE"

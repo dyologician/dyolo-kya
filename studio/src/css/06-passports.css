@@ -1,0 +1,29 @@
+/* ─── Status bar ─────────────────────────────────────────────────────────── */
+.status-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:14px;font-size:var(--fsm);}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.status-dot.green{background:var(--green);box-shadow:0 0 6px var(--green);}
+.status-dot.red{background:#ef4444;box-shadow:0 0 6px #ef4444;}
+.status-dot.yellow{background:#ca8a04;box-shadow:0 0 6px #ca8a04;}
+.status-dot.pulse{animation:glow 2s infinite;}
+@keyframes glow{0%,100%{opacity:1;}50%{opacity:.4;}}
+/* ─── Passport card ──────────────────────────────────────────────────────── */
+.pp-card{border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;background:var(--s2);}
+.pp-card.active{border-color:rgba(34,197,94,.35);}
+.pp-card.expired{border-color:rgba(239,68,68,.3);opacity:.75;}
+.pp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:var(--fsm);}
+.pp-label{color:var(--t2);font-size:var(--fxs);font-family:var(--mono);}
+.pp-caps{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.pp-cap{padding:2px 7px;background:var(--b1);border-radius:3px;font-size:var(--fxs);font-family:var(--mono);}
+/* ─── Agent chat tab ─────────────────────────────────────────────────────── */
+.agent-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.agent-sel-btn{padding:8px;border:1px solid var(--b1);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:center;font-size:var(--fxs);color:var(--text);transition:all .15s;}
+.agent-sel-btn:hover{border-color:var(--b2);}
+.agent-sel-btn.on{border-color:var(--green);background:rgba(34,197,94,.07);}
+.agent-sel-icon{font-size:18px;margin-bottom:3px;}
+/* ─── Lifecycle banner ───────────────────────────────────────────────────── */
+.lc-banner{padding:14px 18px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;}
+.lc-icon{font-size:24px;flex-shrink:0;}
+.lc-title{font-weight:700;font-size:var(--fsm);margin-bottom:4px;}
+.lc-body{font-size:var(--fxs);color:var(--t2);line-height:1.7;}
+.lc-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+

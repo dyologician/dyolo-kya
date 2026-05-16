@@ -1,0 +1,106 @@
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # ── Required for production ──────────────────────────────────────────────
+      A1_SIGNING_KEY_HEX:     ${A1_SIGNING_KEY_HEX:-}
+      A1_MAC_KEY_HEX:         ${A1_MAC_KEY_HEX:-}
+      A1_ADMIN_SECRET:        ${A1_ADMIN_SECRET:-}
+
+      # ── Storage backends ─────────────────────────────────────────────────────
+      A1_REDIS_URL:           redis://redis:6379/0
+      A1_PG_URL:              postgres://a1:${A1_PG_PASSWORD:-a1devpassword}@postgres:5432/a1db
+
+      # ── Network ──────────────────────────────────────────────────────────────
+      GATEWAY_ADDR:           0.0.0.0:8080
+      A1_PUBLIC_BASE_URL:     ${A1_PUBLIC_BASE_URL:-http://localhost:8080}
+      A1_CORS_ALLOWED_ORIGIN: ${A1_CORS_ALLOWED_ORIGIN:-}
+      A1_TRUSTED_PROXY_MODE:  ${A1_TRUSTED_PROXY_MODE:-}
+      A1_RATE_LIMIT_RPS:      ${A1_RATE_LIMIT_RPS:-500}
+
+      # ── Webhook ───────────────────────────────────────────────────────────────
+      A1_WEBHOOK_URL:         ${A1_WEBHOOK_URL:-}
+      A1_WEBHOOK_SECRET:      ${A1_WEBHOOK_SECRET:-}
+
+      # ── JWT bridge ────────────────────────────────────────────────────────────
+      A1_JWT_JWKS_URL:        ${A1_JWT_JWKS_URL:-}
+      A1_JWT_ALLOWED_CAPS:    ${A1_JWT_ALLOWED_CAPS:-}
+
+      # ── Delegation negotiation ────────────────────────────────────────────────
+      A1_NEGOTIATE_CAPABILITIES: ${A1_NEGOTIATE_CAPABILITIES:-}
+      A1_NEGOTIATE_ALLOW_ALL:    ${A1_NEGOTIATE_ALLOW_ALL:-}
+
+      # ── Multi-tenant ──────────────────────────────────────────────────────────
+      A1_MULTI_TENANT:        ${A1_MULTI_TENANT:-false}
+      A1_TENANT_REQUIRED:     ${A1_TENANT_REQUIRED:-false}
+      A1_TENANT_ALLOWLIST:    ${A1_TENANT_ALLOWLIST:-}
+
+      # ── AI proxy ──────────────────────────────────────────────────────────────
+      A1_AI_KEY:              ${A1_AI_KEY:-}
+
+      # ── Observability ─────────────────────────────────────────────────────────
+      RUST_LOG:               ${RUST_LOG:-a1_gateway=info,tower_http=info}
+
+    volumes:
+      - ../studio/index.html:/studio/index.html:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER:     a1
+      POSTGRES_PASSWORD: ${A1_PG_PASSWORD:-a1devpassword}
+      POSTGRES_DB:       a1db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U a1 -d a1db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # OpenTelemetry Collector — activate with: docker compose --profile observability up
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    profiles: ["observability"]
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8888:8888"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redis_data:

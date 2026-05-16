@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A1 v2 | API Test Dashboard</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --panel: #0c0c0c;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --primary: #ffffff;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 20px;
+      height: 100vh;
+    }
+    h1, h2, h3 { margin-top: 0; color: #fff; font-weight: 500; letter-spacing: -0.02em; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .sidebar { overflow-y: auto; }
+    .main { display: flex; flex-direction: column; overflow: hidden; }
+    
+    .branding {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .branding h1 {
+      font-size: 28px;
+      margin: 0 0 10px 0;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: var(--primary);
+    }
+    .branding p {
+      margin: 4px 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .branding a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .branding a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    label { font-size: 13px; font-weight: 500; display: block; margin-bottom: 6px; color: var(--text-muted); }
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    
+    button {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
+    button:hover { background: var(--border); }
+    button.primary { background: var(--primary); color: #000; border-color: transparent; text-align: center; font-weight: 600; }
+    button.primary:hover { background: #e4e4e7; }
+    button.danger { background: transparent; color: var(--danger); border-color: var(--danger); text-align: center;}
+    button.danger:hover { background: var(--danger); color: #fff; }
+
+    .test-group { 
+      border-top: 1px solid var(--border); 
+      padding-top: 20px; 
+      margin-top: 5px; 
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .test-group h3 { 
+      margin: 0 0 4px 0; 
+      font-size: 17px; 
+      font-weight: 700; 
+    }
+    .test-group button {
+      font-weight: 700;
+      padding: 12px 14px;
+    }
+    
+    #console {
+      flex-grow: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      overflow-y: auto;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .log-entry { margin-bottom: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 15px; }
+    .log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .log-meta { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; }
+    .status-200 { color: var(--success); }
+    .status-201 { color: var(--success); }
+    .status-400 { color: var(--warning); }
+    .status-401 { color: var(--warning); }
+    .status-403 { color: var(--warning); }
+    .status-500 { color: var(--danger); }
+    .status-0 { color: var(--danger); }
+    
+    .method { color: var(--primary); font-weight: 600; }
+    .url { color: var(--text-muted); }
+    pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #d4d4d8; }
+    
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+      width: auto;
+      text-align: center;
+    }
+    .copy-btn:hover { background: var(--border); color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar panel">
+    <div class="branding">
+      <h1>A1</h1>
+      <p>X: <a href="https://x.com/dyologician" target="_blank">@dyologician</a></p>
+      <p>Reddit: <a href="https://www.reddit.com/user/dyologician/" target="_blank">@dyologician</a></p>
+      <p>Email: <a href="mailto:workwithdyolo@gmail.com">workwithdyolo@gmail.com</a></p>
+      <p>GitHub: <a href="https://github.com/dyologician/a1" target="_blank">a1</a></p>
+    </div>
+
+    <div>
+      <h2>Config</h2>
+      <label>Gateway URL</label>
+      <input type="text" id="gatewayUrl" value="http://localhost:8080">
+    </div>
+    <div>
+      <label>Admin Secret (Auth)</label>
+      <input type="password" id="adminSecret" placeholder="A1_ADMIN_SECRET (if set)">
+    </div>
+
+    <button class="primary" onclick="runAll()">▶ Run Full Test Suite</button>
+
+    <div class="test-group">
+      <h3>1. System & Discovery</h3>
+      <button onclick="runTest('health')">GET /health</button>
+      <button onclick="runTest('discovery')">GET /.well-known</button>
+    </div>
+
+    <div class="test-group">
+      <h3>2. Cert Issuance</h3>
+      <button onclick="runTest('issueCert')">POST /v1/cert/issue</button>
+      <button onclick="runTest('issueBatch')">POST /v1/cert/issue-batch</button>
+    </div>
+
+    <div class="test-group">
+      <h3>3. Authorization</h3>
+      <button onclick="runTest('authorize')">POST /v1/authorize</button>
+      <button onclick="runTest('authorizeBatch')">POST /v1/authorize/batch</button>
+    </div>
+
+    <div class="test-group">
+      <h3>4. Revocation</h3>
+      <button onclick="runTest('inspect')">GET /v1/cert/:fp</button>
+      <button onclick="runTest('revoke')">POST /v1/cert/revoke</button>
+      <button onclick="runTest('revokeBatch')">POST /v1/cert/revoke-batch</button>
+    </div>
+  </div>
+
+  <div class="main panel">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>Execution Logs</h2>
+      <div style="display: flex; gap: 10px;">
+        <button style="width: auto; padding: 6px 12px;" onclick="copyAllLogs()">Copy All Logs</button>
+        <button class="danger" style="width: auto; padding: 6px 12px;" onclick="clearLogs()">Clear Logs</button>
+      </div>
+    </div>
+    <div id="console">
+      <div style="color: var(--text-muted);">// System ready. Awaiting test execution...</div>
+    </div>
+  </div>
+
+  <script>
+    // --- Mock Data for Testing Mechanics ---
+    // Note: We use dummy hex strings here to test the API's validation logic, 
+    // ensuring the gateway correctly parses the JSON, validates hex lengths, 
+    // and returns the expected structured A1 error codes.
+    const DUMMY_PK = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    const DUMMY_FP = "1111111111111111111111111111111111111111111111111111111111111111";
+
+    const endpoints = {
+      health: { method: "GET", path: "/health" },
+      discovery: { method: "GET", path: "/.well-known/a1-configuration" },
+      issueCert: { 
+        method: "POST", path: "/v1/cert/issue", auth: true,
+        body: { delegate_pk_hex: DUMMY_PK, intents: [{ name: "trade.equity", params: { exchange: "NYSE" } }], ttl_seconds: 3600, max_depth: 8 }
+      },
+      issueBatch: { 
+        method: "POST", path: "/v1/cert/issue-batch", auth: true,
+        body: { requests: [{ delegate_pk_hex: DUMMY_PK, intents: [{ name: "query.portfolio" }], ttl_seconds: 7200 }] }
+      },
+      authorize: { 
+        method: "POST", path: "/v1/authorize", 
+        body: { chain: { version: 1, principal_pk: DUMMY_PK, principal_scope: DUMMY_PK, certs: [] }, intent_name: "trade.equity", executor_pk_hex: DUMMY_PK, return_token: false }
+      },
+      authorizeBatch: { 
+        method: "POST", path: "/v1/authorize/batch", 
+        body: { chain: { version: 1, principal_pk: DUMMY_PK, principal_scope: DUMMY_PK, certs: [] }, executor_pk_hex: DUMMY_PK, intents: [{ name: "trade.equity" }] }
+      },
+      inspect: { method: "GET", path: `/v1/cert/${DUMMY_FP}` },
+      revoke: { method: "POST", path: "/v1/cert/revoke", body: { fingerprint_hex: DUMMY_FP } },
+      revokeBatch: { method: "POST", path: "/v1/cert/revoke-batch", body: { fingerprints: [DUMMY_FP, DUMMY_PK] } }
+    };
+
+    let logCounter = 0;
+
+    function clearLogs() {
+      document.getElementById('console').innerHTML = '';
+      logCounter = 0;
+    }
+
+    async function copyAllLogs() {
+      const entries = document.querySelectorAll('.log-entry pre');
+      if (entries.length === 0) return;
+      const allText = Array.from(entries).reverse().map((el, i) => `--- Log ${i + 1} ---\n${el.innerText}`).join('\n\n');
+      try {
+        await navigator.clipboard.writeText(allText);
+        alert('All logs copied to clipboard!');
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    }
+
+    function logResult(name, method, url, status, timeMs, responseData) {
+      logCounter++;
+      const consoleEl = document.getElementById('console');
+      const statusClass = status >= 200 && status < 300 ? `status-200` : `status-${status}`;
+      
+      let parsedData;
+      try { parsedData = JSON.stringify(JSON.parse(responseData), null, 2); } 
+      catch (e) { parsedData = responseData; }
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      const logId = `log-data-${logCounter}`;
+      
+      entry.innerHTML = `
+        <div class="log-meta">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--text-muted);">#${logCounter}</span>
+            <span>[${name}] <span class="method">${method}</span> <span class="url">${url}</span></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="${statusClass}">${status === 0 ? 'NETWORK_ERROR' : `HTTP ${status}`} (${timeMs}ms)</span>
+            <button class="copy-btn" onclick="copyLog('${logId}', this)">Copy</button>
+          </div>
+        </div>
+        <pre id="${logId}">${parsedData || 'No response body'}</pre>
+      `;
+      consoleEl.prepend(entry);
+    }
+
+    async function copyLog(elementId, btn) {
+      const text = document.getElementById(elementId).innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = originalText; }, 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    }
+
+    async function runTest(testKey) {
+      const config = endpoints[testKey];
+      const baseUrl = document.getElementById('gatewayUrl').value.replace(/\/$/, "");
+      const secret = document.getElementById('adminSecret').value;
+      const url = `${baseUrl}${config.path}`;
+      
+      const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+      if (config.auth && secret) {
+        headers['Authorization'] = `Bearer ${secret}`;
+      }
+
+      const start = performance.now();
+      try {
+        const res = await fetch(url, {
+          method: config.method,
+          headers: headers,
+          body: config.body ? JSON.stringify(config.body) : undefined
+        });
+        const text = await res.text();
+        const timeMs = Math.round(performance.now() - start);
+        logResult(testKey, config.method, config.path, res.status, timeMs, text);
+      } catch (err) {
+        const timeMs = Math.round(performance.now() - start);
+        logResult(testKey, config.method, config.path, 0, timeMs, `Fetch failed: ${err.message}\nMake sure Docker is running and CORS is allowed.`);
+      }
+    }
+
+    async function runAll() {
+      clearLogs();
+      const keys = Object.keys(endpoints);
+      for (const key of keys) {
+        await runTest(key);
+        // Brief pause between requests to preserve ordering in logs
+        await new Promise(r => setTimeout(r, 150)); 
+      }
+    }
+  </script>
+</body>
+</html>

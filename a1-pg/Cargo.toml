@@ -1,0 +1,24 @@
+[package]
+name        = "a1-pg"
+version     = "2.8.0"
+edition     = "2021"
+authors     = ["dyolo <@dyologician>"]
+description = "PostgreSQL RevocationStore and NonceStore backends for A1"
+license     = "MIT OR Apache-2.0"
+repository  = "https://github.com/dyologician/a1"
+keywords    = ["ai-agents", "delegation", "authorization", "postgres"]
+
+[features]
+default = []
+
+[dev-dependencies]
+tokio  = { version = "1", features = ["full"] }
+anyhow = "1"
+
+[dependencies]
+a1          = { path = "..", version = "2.8", features = ["async"] }
+sqlx        = { version = "0.8", features = ["postgres", "runtime-tokio", "macros"] }
+async-trait = "0.1"
+hex         = "0.4"
+thiserror   = "1"
+tokio       = { version = "1", features = ["time"] }

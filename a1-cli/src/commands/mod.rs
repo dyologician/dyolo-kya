@@ -1,0 +1,11 @@
+pub mod completion;
+pub mod decode;
+pub mod inspect;
+pub mod issue;
+pub mod keygen;
+pub mod migrate;
+pub mod passport;
+pub mod policy;
+pub mod revoke;
+pub mod revoke_batch;
+pub mod verify;

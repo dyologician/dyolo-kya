@@ -1,0 +1,110 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   10-desktop.css — fluid desktop layout, sidebar resizing, wide-screen optimizations
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Fluid sidebar widths by viewport ───────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root { --sb: 176px; --fbase: 12.5px; }
+}
+@media (min-width: 1025px) and (max-width: 1440px) {
+  :root { --sb: 200px; }
+}
+@media (min-width: 1441px) and (max-width: 1920px) {
+  :root { --sb: 220px; --fbase: 14px; --fsm: 11px; --pad: 22px; }
+}
+@media (min-width: 1921px) {
+  :root { --sb: 240px; --fbase: 15px; --fsm: 12px; --fxs: 10px; --pad: 28px; --gap: 16px; }
+}
+
+/* ── Content fills all available space ──────────────────────────────────────── */
+.content > * { max-width: 100%; width: 100%; box-sizing: border-box; }
+
+/* ── Better grid layouts on wider desktop ───────────────────────────────────── */
+@media (min-width: 1280px) {
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1600px) {
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Sidebar section headers more legible at size ───────────────────────────── */
+@media (min-width: 1441px) {
+  .sb-sec { font-size: 9px; letter-spacing: .15em; padding: 12px 16px 4px; }
+  .sb-item { padding: 9px 18px; font-size: 11px; gap: 10px; }
+  .sb-icon { font-size: 14px; width: 18px; }
+  .logo-mark { font-size: 24px; }
+}
+
+/* ── Topbar stretches cleanly on wide monitors ──────────────────────────────── */
+@media (min-width: 1441px) {
+  .topbar { padding: 0 28px; height: 50px; min-height: 50px; max-height: 50px; }
+  .topbar-title { font-size: 12px; }
+}
+
+/* ── Resizable sidebar handle ───────────────────────────────────────────────── */
+.sb-resize-handle {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 10;
+  transition: background .15s;
+}
+.sb-resize-handle:hover,
+.sb-resize-handle.dragging {
+  background: rgba(99, 102, 241, .35);
+}
+.sb { position: relative; }
+
+/* ── Live Log / table horizontal scroll prevention ──────────────────────────── */
+@media (min-width: 769px) {
+  .log-table-wrap { overflow-x: auto; }
+  .log-table-wrap table { min-width: 560px; }
+}
+
+/* ── Card grid fills available space ────────────────────────────────────────── */
+@media (min-width: 1100px) {
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+@media (min-width: 1500px) {
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+}
+
+/* ── Modal max-width adapts ─────────────────────────────────────────────────── */
+@media (min-width: 1280px) {
+  .modal { max-width: 680px; }
+}
+@media (min-width: 1600px) {
+  .modal { max-width: 760px; }
+}
+
+/* ── Passport table row spacing on large screens ────────────────────────────── */
+@media (min-width: 1280px) {
+  .dash-row td { padding: 11px 14px; }
+}
+
+/* ── AI Assistant chat window expands on large screen ───────────────────────── */
+@media (min-width: 1280px) {
+  .ai-chat-window { min-height: 320px; max-height: 560px !important; }
+}
+@media (min-width: 1600px) {
+  .ai-chat-window { max-height: 680px !important; }
+}
+
+/* ── Code blocks — comfortable line length ──────────────────────────────────── */
+@media (min-width: 1280px) {
+  .code-block, pre { max-width: 100%; font-size: 12px; }
+}
+@media (min-width: 1600px) {
+  .code-block, pre { font-size: 12.5px; }
+}
+
+/* ── No horizontal scroll on any desktop viewport ──────────────────────────── */
+@media (min-width: 769px) {
+  #root { overflow: hidden; width: 100%; }
+  .main { overflow: hidden; min-width: 0; flex: 1; }
+  .content { overflow-y: auto; overflow-x: hidden; width: 100%; min-width: 0; }
+}

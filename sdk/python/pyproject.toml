@@ -1,0 +1,64 @@
+[build-system]
+requires      = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name         = "a1"
+version      = "2.8.0"
+description  = "A1 — Python SDK for AI agent identity and delegation authorization with cryptographic chain-of-custody"
+readme       = "README.md"
+license      = { text = "MIT OR Apache-2.0" }
+authors      = [{ name = "dyolo", email = "dyologician@users.noreply.github.com" }]
+requires-python = ">=3.9"
+keywords     = ["ai-agents", "delegation", "cryptography", "authorization", "langchain", "langgraph", "llamaindex", "autogen", "crewai"]
+classifiers  = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["httpx>=0.27"]
+
+[project.optional-dependencies]
+langchain         = ["langchain-core>=0.2"]
+langgraph         = ["langgraph>=0.1", "langchain-core>=0.2"]
+llamaindex        = ["llama-index-core>=0.10"]
+semantic-kernel   = ["semantic-kernel>=1.0"]
+openai            = ["openai>=1.0"]
+autogen           = ["pyautogen>=0.2"]
+crewai            = ["crewai>=0.1"]
+vault-aws         = ["boto3>=1.26", "cryptography>=41"]
+vault-gcp         = ["google-cloud-kms>=2.0", "cryptography>=41"]
+vault-hashicorp   = ["hvac>=1.0", "cryptography>=41"]
+vault-azure       = ["azure-keyvault-keys>=4.7", "azure-identity>=1.13", "cryptography>=41"]
+siem-datadog      = ["httpx>=0.27"]
+siem-splunk       = ["httpx>=0.27"]
+siem-otel         = ["opentelemetry-sdk>=1.20", "opentelemetry-exporter-otlp-proto-http>=1.20"]
+all               = [
+    "langchain-core>=0.2",
+    "langgraph>=0.1",
+    "llama-index-core>=0.10",
+    "openai>=1.0",
+    "httpx>=0.27",
+    "cryptography>=41",
+]
+dev = ["pytest", "pytest-asyncio", "respx", "cryptography>=41"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["a1"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths    = ["tests"]
+
+[project.urls]
+Repository    = "https://github.com/dyologician/a1"
+Documentation = "https://docs.rs/a1"
+Changelog     = "https://github.com/dyologician/a1/blob/main/CHANGELOG.md"
+Homepage      = "https://github.com/dyologician/a1"
+"Bug Tracker" = "https://github.com/dyologician/a1/issues"
