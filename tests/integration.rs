@@ -743,14 +743,22 @@ mod passport_tests {
         let clock = SystemClock;
 
         let sub = passport
-            .issue_sub(agent.verifying_key(), &["trade.equity"], 1800, &root, &clock)
+            .issue_sub(
+                agent.verifying_key(),
+                &["trade.equity"],
+                1800,
+                &root,
+                &clock,
+            )
             .unwrap();
 
         let mut chain = passport.new_chain().unwrap();
         chain.push(sub);
 
         let intent = Intent::new("trade.equity").unwrap();
-        let receipt = passport.guard_local(&chain, &agent.verifying_key(), &intent).unwrap();
+        let receipt = passport
+            .guard_local(&chain, &agent.verifying_key(), &intent)
+            .unwrap();
 
         assert_eq!(receipt.passport_namespace, "trading-bot");
         assert!(receipt.verify_commitment(), "commitment must be valid");
@@ -764,7 +772,13 @@ mod passport_tests {
         let clock = SystemClock;
 
         let sub = passport
-            .issue_sub(agent.verifying_key(), &["portfolio.read"], 1800, &root, &clock)
+            .issue_sub(
+                agent.verifying_key(),
+                &["portfolio.read"],
+                1800,
+                &root,
+                &clock,
+            )
             .unwrap();
 
         let mut chain = passport.new_chain().unwrap();
@@ -861,7 +875,13 @@ mod passport_tests {
         let clock = SystemClock;
 
         let sub = passport
-            .issue_sub(agent.verifying_key(), &["trade.equity"], 1800, &root, &clock)
+            .issue_sub(
+                agent.verifying_key(),
+                &["trade.equity"],
+                1800,
+                &root,
+                &clock,
+            )
             .unwrap();
 
         let mut chain = passport.new_chain().unwrap();
