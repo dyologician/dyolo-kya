@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import {
   PassportClient,
   PassportError,
@@ -20,7 +20,7 @@ const SAMPLE_RECEIPT: PassportReceipt = {
 const WRAPPED_RECEIPT = { receipt: SAMPLE_RECEIPT };
 
 function mockFetch(response: object, status = 200): typeof globalThis.fetch {
-  return vi.fn().mockResolvedValue({
+  return jest.fn().mockResolvedValue({
     ok: status < 400,
     status,
     json: async () => response,
@@ -79,7 +79,7 @@ describe("PassportClient.authorize", () => {
   });
 
   it("throws PassportError on non-200 with no JSON body", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: false,
       status: 503,
       json: async () => { throw new Error("not json"); },
@@ -92,7 +92,7 @@ describe("PassportClient.authorize", () => {
 
   it("includes intent_params in the request body when provided", async () => {
     let captured: unknown;
-    globalThis.fetch = vi.fn().mockImplementation(async (_url: unknown, init: RequestInit) => {
+    globalThis.fetch = jest.fn().mockImplementation(async (_url: unknown, init: RequestInit) => {
       captured = JSON.parse(init.body as string);
       return { ok: true, status: 200, json: async () => WRAPPED_RECEIPT } as Response;
     });
@@ -205,7 +205,7 @@ describe("withA1Passport", () => {
 
   it("respects custom chainKey and executorKey options", async () => {
     let capturedChain: unknown;
-    globalThis.fetch = vi.fn().mockImplementation(async (_url: unknown, init: RequestInit) => {
+    globalThis.fetch = jest.fn().mockImplementation(async (_url: unknown, init: RequestInit) => {
       capturedChain = JSON.parse(init.body as string);
       return { ok: true, status: 200, json: async () => WRAPPED_RECEIPT } as Response;
     });

@@ -67,7 +67,10 @@ fn passport_guard_local_single_capability_end_to_end() {
         .unwrap();
 
     assert_eq!(receipt.passport_namespace, "acme-trading-bot");
-    assert!(receipt.verify_commitment(), "ProvableReceipt commitment must be self-consistent");
+    assert!(
+        receipt.verify_commitment(),
+        "ProvableReceipt commitment must be self-consistent"
+    );
     assert_eq!(receipt.inner.chain_depth, 1);
 }
 
@@ -78,13 +81,7 @@ fn passport_guard_rejects_out_of_scope_intent() {
     let clock = SystemClock;
 
     let sub = passport
-        .issue_sub(
-            agent.verifying_key(),
-            &["portfolio.read"],
-            3600,
-            &root,
-            &clock,
-        )
+        .issue_sub(agent.verifying_key(), &["portfolio.read"], 3600, &root, &clock)
         .unwrap();
 
     let mut chain = passport.new_chain().unwrap();
