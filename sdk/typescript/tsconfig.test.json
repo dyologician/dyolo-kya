@@ -4,6 +4,7 @@
     "rootDir": ".",
     "outDir": "./dist-test",
     "noEmit": true,
+    "noUncheckedIndexedAccess": false,
     "types": ["jest", "node"]
   },
   "include": ["src", "tests"]
