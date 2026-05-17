@@ -26,7 +26,6 @@ pub(crate) const PASSPORT_PROTOCOL_TAG: &[u8] = &[
     0x7c, 0x64, 0x79, 0x6f, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x69, 0x61, 0x6e,
 ];
 
-
 /// A long-lived agent identity with cryptographically enforced capability bounds.
 ///
 /// `DyoloPassport` is the primary entry point for the A1 v2.8.0 identity
@@ -173,7 +172,9 @@ impl DyoloPassport {
         signer: &dyn Signer,
         clock: &dyn Clock,
     ) -> Result<Self, A1Error> {
-        let mask = NarrowingMatrix::from_capabilities(&capabilities.iter().map(String::as_str).collect::<Vec<_>>());
+        let mask = NarrowingMatrix::from_capabilities(
+            &capabilities.iter().map(String::as_str).collect::<Vec<_>>(),
+        );
         let hashes = cap_hashes(&capabilities)?;
         let tree = IntentTree::build(hashes)?;
         let scope_root = tree.root();
@@ -186,7 +187,10 @@ impl DyoloPassport {
             .set("dyolo.passport.v", ExtValue::U64(1))
             .set("dyolo.passport.namespace", ExtValue::Str(namespace.clone()))
             .set("dyolo.passport.mask", ExtValue::Str(mask.to_hex()))
-            .set("dyolo.passport.caps", ExtValue::Strings(capabilities.clone()));
+            .set(
+                "dyolo.passport.caps",
+                ExtValue::Strings(capabilities.clone()),
+            );
 
         #[cfg(feature = "wire")]
         let cert = CertBuilder::new(signer.verifying_key(), scope_root, now, expiry)
@@ -199,7 +203,12 @@ impl DyoloPassport {
             .max_depth(255)
             .build(signer)?;
 
-        Ok(Self { namespace, capability_mask: mask, capabilities, cert })
+        Ok(Self {
+            namespace,
+            capability_mask: mask,
+            capabilities,
+            cert,
+        })
     }
 
     /// The Ed25519 public key of the passport holder.
@@ -279,7 +288,10 @@ impl DyoloPassport {
         #[cfg(feature = "wire")]
         let ext = CertExtensions::new()
             .set("dyolo.passport.v", ExtValue::U64(1))
-            .set("dyolo.passport.namespace", ExtValue::Str(self.namespace.clone()))
+            .set(
+                "dyolo.passport.namespace",
+                ExtValue::Str(self.namespace.clone()),
+            )
             .set("dyolo.passport.mask", ExtValue::Str(requested.to_hex()));
 
         #[cfg(feature = "wire")]
@@ -390,7 +402,8 @@ impl DyoloPassport {
         let nonces = MemoryNonceStore::new();
 
         let intent_hash = intent.hash();
-        let action = chain.authorize(agent_pk, &intent_hash, &proof, &clock, &revocation, &nonces)?;
+        let action =
+            chain.authorize(agent_pk, &intent_hash, &proof, &clock, &revocation, &nonces)?;
 
         Ok(ProvableReceipt::new(
             action.receipt,
@@ -424,11 +437,11 @@ impl DyoloPassport {
     #[cfg(feature = "wire")]
     #[cfg_attr(docsrs, doc(cfg(feature = "wire")))]
     pub fn load(path: impl AsRef<std::path::Path>) -> Result<Self, A1Error> {
-        let json = std::fs::read_to_string(path)
-            .map_err(|e| A1Error::WireFormatError(e.to_string()))?;
-        let file: PassportFile = serde_json::from_str(&json)
-            .map_err(|e| A1Error::WireFormatError(e.to_string()))?;
-        
+        let json =
+            std::fs::read_to_string(path).map_err(|e| A1Error::WireFormatError(e.to_string()))?;
+        let file: PassportFile =
+            serde_json::from_str(&json).map_err(|e| A1Error::WireFormatError(e.to_string()))?;
+
         let mask = NarrowingMatrix::from_hex(&file.capability_mask_hex)?;
         Ok(Self {
             namespace: file.namespace,
@@ -524,8 +537,13 @@ mod tests {
         let (root, passport) = make_passport(&["trade.equity", "portfolio.read"]);
         let agent = DyoloIdentity::generate();
         let clock = SystemClock;
-        let result =
-            passport.issue_sub(agent.verifying_key(), &["trade.equity"], 1800, &root, &clock);
+        let result = passport.issue_sub(
+            agent.verifying_key(),
+            &["trade.equity"],
+            1800,
+            &root,
+            &clock,
+        );
         assert!(result.is_ok());
     }
 
@@ -536,7 +554,13 @@ mod tests {
         let clock = SystemClock;
 
         let sub = passport
-            .issue_sub(agent.verifying_key(), &["trade.equity"], 1800, &root, &clock)
+            .issue_sub(
+                agent.verifying_key(),
+                &["trade.equity"],
+                1800,
+                &root,
+                &clock,
+            )
             .unwrap();
 
         let mut chain = passport.new_chain().unwrap();
@@ -558,7 +582,13 @@ mod tests {
         let clock = SystemClock;
 
         let sub = passport
-            .issue_sub(agent.verifying_key(), &["portfolio.read"], 1800, &root, &clock)
+            .issue_sub(
+                agent.verifying_key(),
+                &["portfolio.read"],
+                1800,
+                &root,
+                &clock,
+            )
             .unwrap();
 
         let mut chain = passport.new_chain().unwrap();
@@ -574,17 +604,17 @@ mod tests {
     fn issue_from_csv_matches_slice() {
         let root = DyoloIdentity::generate();
         let clock = SystemClock;
-        let a =
-            DyoloPassport::issue("a", &["trade.equity", "portfolio.read"], 3600, &root, &clock)
-                .unwrap();
-        let b = DyoloPassport::issue_from_csv(
+        let a = DyoloPassport::issue(
             "a",
-            "trade.equity, portfolio.read",
+            &["trade.equity", "portfolio.read"],
             3600,
             &root,
             &clock,
         )
         .unwrap();
+        let b =
+            DyoloPassport::issue_from_csv("a", "trade.equity, portfolio.read", 3600, &root, &clock)
+                .unwrap();
         assert_eq!(a.capability_mask, b.capability_mask);
     }
 }

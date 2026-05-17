@@ -343,7 +343,7 @@ fn unix_to_iso(unix: u64) -> String {
     let mut d = unix / 86400;
     let mut y = 1970u64;
     loop {
-        let yl = if (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0) {
+        let yl = if (y.is_multiple_of(4) && !y.is_multiple_of(100)) || y.is_multiple_of(400) {
             366
         } else {
             365
@@ -354,7 +354,7 @@ fn unix_to_iso(unix: u64) -> String {
         d -= yl;
         y += 1;
     }
-    let ml: [u64; 12] = if (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0) {
+    let ml: [u64; 12] = if (y.is_multiple_of(4) && !y.is_multiple_of(100)) || y.is_multiple_of(400) {
         [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     } else {
         [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
