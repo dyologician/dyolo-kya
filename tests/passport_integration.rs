@@ -34,7 +34,10 @@ fn passport_scope_root_is_deterministic() {
     let (_root, passport) = trading_passport();
     let r1 = passport.scope_root().unwrap();
     let r2 = passport.scope_root().unwrap();
-    assert_eq!(r1, r2, "scope_root must be deterministic for the same capability set");
+    assert_eq!(
+        r1, r2,
+        "scope_root must be deterministic for the same capability set"
+    );
 }
 
 #[test]
