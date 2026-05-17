@@ -857,13 +857,13 @@ function ConnectAgents() {
     if (t.match(/\.mcp\.json|mcp.*server|model context/))
       sug.push({ icon: '⚡', label: 'MCP config (zero code)', desc: 'One line in .mcp.json and you\'re done.', snippet: '{"mcpServers":{"a1":{"type":"http","url":"http://localhost:8080/mcp"}}}' });
     if (t.match(/python|\.py|flask|fastapi/))
-      sug.push({ icon: '🐍', label: 'Python snippet ready', desc: 'pip install a1 → @a1_guard decorator.', tab: 'wizard' });
+      sug.push({ icon: '🐍', label: 'Python snippet ready', desc: 'pip install a1identity → @a1_guard decorator.', tab: 'wizard' });
     if (t.match(/typescript|javascript|node|\.ts|\.js/))
-      sug.push({ icon: '📘', label: 'TypeScript/Node snippet ready', desc: 'npm install a1 → withA1Passport wrapper.', tab: 'wizard' });
+      sug.push({ icon: '📘', label: 'TypeScript/Node snippet ready', desc: 'npm install a1 → withA1Passport wrapper. (`npm install a1-ai`)', tab: 'wizard' });
     if (t.match(/go|golang|\.go/))
       sug.push({ icon: '🐹', label: 'Go snippet ready', desc: 'go get github.com/dyologician/a1/sdk/go/a1', tab: 'wizard' });
     if (t.match(/rust|cargo|\.rs/))
-      sug.push({ icon: '⚙', label: 'Rust snippet ready', desc: 'cargo add a1 → DyoloPassport::guard_local()', tab: 'wizard' });
+      sug.push({ icon: '⚙', label: 'Rust snippet ready', desc: 'cargo add a1-ai → DyoloPassport::guard_local()', tab: 'wizard' });
     if (t.match(/rest|http|curl|api|webhook/))
       sug.push({ icon: '🌐', label: 'REST API (any language)', desc: 'POST /v1/authorize — works from anything.', tab: 'wizard' });
     if (sug.length === 0 && text.trim().length > 3)

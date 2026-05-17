@@ -462,7 +462,7 @@ DOCS:
    Run the install script:  curl -fsSL https://raw.githubusercontent.com/dyologician/a1/main/install.sh | sh
    Or with cargo:           cargo install a1-gateway
    Or with npm:             npx a1-gateway
-   Or with pip:             pip install a1 && a1-gateway
+   Or with pip:             pip install a1identity && a1-gateway
 
 2. START A1
    Run: a1-gateway
@@ -720,7 +720,7 @@ The A1 authorization check happens regardless of which model backend you use.`,
     category: 'SDKs',
     title: 'Python SDK — integration guide',
     tags: ['python', 'sdk', 'integration', 'pip', 'langchain', 'openai', 'python sdk'],
-    body: `Install: pip install a1
+    body: `Install: pip install a1identity
 
 Basic usage:
   import a1
@@ -753,7 +753,7 @@ Middleware (FastAPI / Flask):
     category: 'SDKs',
     title: 'TypeScript / Node SDK — integration guide',
     tags: ['typescript', 'javascript', 'node', 'sdk', 'npm', 'typescript sdk'],
-    body: `Install: npm install a1
+    body: `Install: npm install a1-ai
 
 Basic usage:
   import { A1Client, loadPassport, guard } from "a1";

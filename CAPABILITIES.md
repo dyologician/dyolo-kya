@@ -372,6 +372,21 @@ docker compose up -d
 | `GET`  | `/v1/webhook/status` | Webhook delivery status |
 | `POST` | `/v1/webhook/test` | Send a test webhook event (admin) |
 | `POST` | `/v1/debug/explain-error` | Translate an A1 error code to plain English |
+| `GET`  | `/v1/agents/scan` | Scan filesystem for installed AI agents |
+| `GET`  | `/v1/agents/pull` | SSE stream: one-click agent install with real-time progress |
+| `POST` | `/v1/agents/connect` | Write A1 integration config for an agent (one-click) |
+| `POST` | `/v1/agents/disconnect` | Remove A1 from an agent's config |
+| `POST` | `/v1/agents/restart` | Restart an agent process |
+| `POST` | `/v1/agents/remove` | Uninstall an agent from the system |
+| `POST` | `/v1/agents/probe-live` | Genuine live-connection proof (config + binary + policy + HTTP) |
+| `POST` | `/v1/agents/relay` | Relay an authorized message to a running agent's HTTP API |
+| `POST` | `/v1/studio/check` | Studio policy check (used by live proof panel) |
+| `GET`  | `/v1/automagic/status` | Autostart and Docker status |
+| `POST` | `/v1/automagic/enable-autostart` | Configure platform autostart |
+| `POST` | `/v1/automagic/install-docker` | Background Docker Desktop install |
+| `GET`  | `/mcp` | MCP SSE stream (Model Context Protocol) |
+| `POST` | `/mcp` | MCP JSON-RPC 2.0 handler |
+| `GET`  | `/mcp/tools` | MCP tool manifest |
 | `GET`  | `/healthz` | Health check |
 | `GET`  | `/.well-known/a1-configuration` | Service discovery document |
 | `GET`  | `/.well-known/schema.json` | Wire format JSON schema |
@@ -615,7 +630,7 @@ All returned buffers are heap-allocated and must be freed with `a1_free_buf`. Th
 | Passports | My Passports | List, inspect, quick-renew, and revoke individual passports by namespace. |
 | Passports | Passport Dashboard | **All passports across all namespaces in a single view.** Sorted by urgency: expired first, then expiring soon, then valid. Stats bar shows Total / Protected / Expiring / Expired. Search by namespace or capability. Inline quick-renew without expanding. |
 | Passports | Passport Vault | Export, backup, and restore passport files. |
-| Agents | Connect Agents | Register remote agents and view their live status. |
+| Agents | Connect Agents | **One-click agent installation, connection, and live proof.** Scans for IronClaw, OpenClaw, Claude Code, Claude Desktop, Ollama, LangChain, CrewAI, OpenAI Agents SDK. One-click install with real-time SSE progress. One-click connect (writes config file). Live two-step proof: A1 authorizes AND agent replies. Passport status per agent with inline renew/revoke. |
 | Agents | Agent Lifecycle | Visualize the lifecycle of an agent: issuance → delegation → authorization → receipt → revocation. |
 | Agents | Guided Next | Contextual next-step prompts based on current setup state. |
 | Security | Trust Layer | Interactive visualization of the full delegation chain from human principal through every agent hop to the final receipt. |
@@ -635,7 +650,104 @@ All returned buffers are heap-allocated and must be freed with `a1_free_buf`. Th
 
 ---
 
-## Performance Characteristics
+## Core Capability: One-Click Agent Installation and Connection
+
+**What it is.** A complete agent lifecycle manager built into the gateway. Users click one button in Studio to scan for installed agents, install missing ones with real-time progress, connect them to A1 (writes the config file), disconnect, restart, and uninstall — all without touching a terminal.
+
+**What it solves.** The hardest part of adopting any authorization layer is the integration step. A1 eliminates it: the gateway detects what's installed, writes the config file automatically, and proves the connection is real — not just a label.
+
+**How it works.**
+
+- `GET /v1/agents/scan` — Scans the filesystem and PATH for known agents. Returns detected agents with their install paths, connection status, and install commands.
+- `GET /v1/agents/pull?agent_id=X&platform=unix` — **SSE stream** that runs the agent's install command and streams stdout/stderr in real time. The install progress bar in Studio is driven by this stream. State survives browser tab switches (held by EventSource, not React).
+- `POST /v1/agents/connect` — Writes the A1 integration config file to the agent's directory: `.mcp.json` for MCP-compatible agents (Claude Code, OpenClaw, Ollama, LangChain, CrewAI, OpenAI Agents SDK), `a1_plugin.toml` for IronClaw. Merges into existing configs without overwriting user settings.
+- `POST /v1/agents/disconnect` — Removes the A1 entry from the agent's config file. Non-destructive: the rest of the config is preserved.
+- `POST /v1/agents/restart` — Sends a restart signal to the agent process (where supported).
+- `POST /v1/agents/remove` — Runs the agent's uninstall command and streams the result.
+- `POST /v1/agents/probe-live` — **Genuine connection proof.** Reads the actual config file from disk, runs the agent binary (`ironclaw --version` etc.), makes real `/v1/authorize` calls to test policy enforcement (allow + deny), and probes the agent's HTTP API. Returns a structured proof report — no mocks, no simulation.
+
+**Supported agents (auto-detected):**
+
+| Agent | Detection | Install command | Connection method |
+|---|---|---|---|
+| **IronClaw** ★ Recommended | `~/.ironclaw/`, PATH | `cargo install ironclaw` | `a1_plugin.toml` |
+| **OpenClaw** | `~/.openclaw/`, PATH | `npm install --prefix ~/.npm-global openclaw` | `.mcp.json` |
+| **Claude Code** | `~/.claude/`, PATH | `npm install --prefix ~/.npm-global @anthropic-ai/claude-code` | `.mcp.json` |
+| **Claude Desktop** | `~/Library/Application Support/Claude/` | Download from claude.ai/desktop | `claude_desktop_config.json` |
+| **Ollama** | `~/.ollama/`, PATH | `curl -fsSL https://ollama.ai/install.sh \| sh` | `.mcp.json` |
+| **LangChain** | `python3 -c "import langchain"` | `pip3 install --user langchain langchain-openai` | `.mcp.json` |
+| **CrewAI** | `python3 -c "import crewai"` | `pip3 install --user crewai` | `.mcp.json` |
+| **OpenAI Agents SDK** | `python3 -c "import openai"` | `pip3 install --user openai-agents` | `.mcp.json` |
+
+**Live proof system (real two-step verification):**
+1. `POST /v1/studio/check` — A1 evaluates the real policy and returns `authorized: true/false`
+2. `POST /v1/agents/relay` — If authorized, A1 relays the message to the agent's HTTP API and returns the real reply
+3. "Behaving correctly ✓" is shown **only** when both steps complete — A1 authorized AND the agent returned a real reply. A1 authorizing alone is never presented as proof.
+
+**Relevant files.** `a1-gateway/src/routes/agent_connect.rs`, `a1-gateway/src/routes/agent_relay.rs`, `a1-gateway/src/routes/agent_patch.rs`
+
+---
+
+## Core Capability: MCP Server (Model Context Protocol)
+
+**What it is.** A full Model Context Protocol server built into the gateway. Any MCP-compatible agent (Claude Code, Claude Desktop, OpenClaw, and any MCP client) can use A1 authorization without any code changes — one JSON config entry is all that's needed.
+
+**What it solves.** MCP is the standard protocol for AI agents to call tools. A1's MCP server means agents using the MCP standard get cryptographic authorization for free — zero decorators, zero imports, zero understanding of cryptography required.
+
+**Endpoints:**
+- `GET /mcp` — SSE stream (MCP server-sent events transport)
+- `POST /mcp` — JSON-RPC 2.0 request handler
+- `GET /mcp/tools` — Tool manifest (non-MCP convenience endpoint)
+
+**MCP tools exposed by A1:**
+- `a1_check_health` — Verify the A1 gateway is reachable
+- `a1_authorize` — Authorize an agent intent against a delegation chain
+- `a1_issue_cert` — Issue a delegation certificate (admin)
+- `a1_revoke_cert` — Revoke a certificate (admin)
+- `a1_passport_check` — Check passport status for a namespace
+
+**One-line integration (any MCP-compatible agent):**
+
+```json
+{
+  "mcpServers": {
+    "a1": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp",
+      "description": "A1 — cryptographic agent authorization"
+    }
+  }
+}
+```
+
+**Relevant files.** `a1-gateway/src/routes/mcp.rs`
+
+---
+
+## Core Capability: Automagic (Zero-Config Setup and Autostart)
+
+**What it is.** A system-level configuration layer that makes A1 start automatically on login, installs Docker if missing, and manages the gateway process lifecycle — all from the Studio UI or `setup.sh`.
+
+**What it solves.** Non-technical users should not need to understand Docker, LaunchAgents, or systemd. Automagic handles all of it: detect platform, install runtime, configure autostart, create desktop launcher.
+
+**Endpoints:**
+- `GET /v1/automagic/status` — Returns `{ autostart_enabled, docker_installed, platform }`
+- `POST /v1/automagic/enable-autostart` — Installs the appropriate autostart mechanism for the platform
+- `POST /v1/automagic/install-docker` — Triggers a background Docker Desktop install (macOS/Linux/Windows)
+
+**Platform autostart mechanisms:**
+- **macOS** — `~/Library/LaunchAgents/com.a1.gateway.plist` (runs at login, kept alive)
+- **Linux (systemd)** — `~/.config/systemd/user/a1-gateway.service` (user-level service)
+- **Linux (no systemd)** — `~/.bashrc` / `~/.zshrc` entry
+- **Windows** — Windows Task Scheduler registered task
+
+**Desktop launcher:**
+- **macOS** — `~/Desktop/A1 Gateway.command` (double-click to start A1 and open Studio)
+- **Linux** — `~/Desktop/A1-Gateway.desktop` (freedesktop.org launcher)
+
+**Relevant files.** `a1-gateway/src/routes/automagic.rs`, `setup.sh`, `scripts/setup.ps1`
+
+---
 
 | Operation | Throughput | Notes |
 |---|---|---|

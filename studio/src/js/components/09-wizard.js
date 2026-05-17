@@ -118,7 +118,7 @@ function wizCode(av,name,caps,ttl){
   const cap1=caps[0]||'files.read';
   const capStr=caps.join(', ')||'files.read';
   const T={
-    'claude-code':'# Paste this prompt into Claude Code:\n\n"""\nI have an A1 passport at ./passport.json\nAgent namespace: '+ns+'\nAllowed capabilities: '+capStr+'\nA1 gateway: http://localhost:8080\n\nPlease:\n1. Run: pip install a1\n2. Add @a1_guard(client=PassportClient("http://localhost:8080"), capability="'+cap1+'") to my tool functions\n3. Show me the full integration\n"""\n\n# Claude Code will write everything for you!',
+    'claude-code':'# Paste this prompt into Claude Code:\n\n"""\nI have an A1 passport at ./passport.json\nAgent namespace: '+ns+'\nAllowed capabilities: '+capStr+'\nA1 gateway: http://localhost:8080\n\nPlease:\n1. Run: pip install a1identity\n2. Add @a1_guard(client=PassportClient("http://localhost:8080"), capability="'+cap1+'") to my tool functions\n3. Show me the full integration\n"""\n\n# Claude Code will write everything for you!',
     'openai':'from a1.passport import a1_guard, PassportClient\n\nclient = PassportClient(\n    gateway_url="http://localhost:8080",\n    passport_path="./passport.json",\n)\n\n@a1_guard(client=client, capability="'+cap1+'")\nasync def my_tool(query: str, signed_chain: dict, executor_pk_hex: str) -> str:\n    # Your tool logic here — a1_guard verifies authorization first\n    return f"Done: {query}"',
     'langchain':'from a1.langchain_tool import A1AuthorizationTool\nfrom a1.passport import PassportClient\n\nclient = PassportClient(\n    gateway_url="http://localhost:8080",\n    passport_path="./passport.json",\n)\n\ntool = A1AuthorizationTool(\n    name="my_tool",\n    description="My A1-protected tool.",\n    intent_name="'+cap1+'",\n    client=client,\n    func=my_tool_fn,\n    chain=agent_chain,\n    executor_pk_hex=agent_pk,\n)',
     'langgraph':'from a1.langgraph_tool import a1_node\nfrom a1.passport import PassportClient\n\nclient = PassportClient(\n    gateway_url="http://localhost:8080",\n    passport_path="./passport.json",\n)\n\n@a1_node(intent_name="'+cap1+'", client=client, propagate_receipt=True)\nasync def my_node(state: dict) -> dict:\n    # Node logic here — authorization verified before execution\n    return state',
@@ -129,7 +129,7 @@ function wizCode(av,name,caps,ttl){
     'go':'import a1 "github.com/dyologician/a1/sdk/go/a1"\n\nclient := a1.NewClient("http://localhost:8080", nil)\n\nguarded := a1.WithPassport(client, "'+cap1+'", myToolFunc)\n// guarded() verifies authorization then calls myToolFunc',
     'rest':'# Works in any language — just HTTP\ncurl -X POST http://localhost:8080/v1/authorize \\\\\n  -H "Content-Type: application/json" \\\\\n  -d \'{\n    "chain": <your-signed-chain>,\n    "intent_name": "'+cap1+'",\n    "executor_pk_hex": "<agent-pk-hex>"\n  }\'',
     'ironclaw':'# Add to your IronClaw / custom agent config:\n# gateway: http://localhost:8080\n# passport: ./passport.json\n# capabilities: '+capStr+'\n\n# Then use the REST API for authorization:\n# POST http://localhost:8080/v1/authorize\n# See: https://github.com/dyologician/a1 for examples',
-    'other':'# Tell your AI assistant to integrate A1:\n\n"""\nAdd A1 authorization to my agent.\nPassport file: ./passport.json\nGateway: http://localhost:8080\nCapabilities: '+capStr+'\n\nInstall: pip install a1\nDocs: https://github.com/dyologician/a1\n"""',
+    'other':'# Tell your AI assistant to integrate A1:\n\n"""\nAdd A1 authorization to my agent.\nPassport file: ./passport.json\nGateway: http://localhost:8080\nCapabilities: '+capStr+'\n\nInstall: pip install a1identity\nDocs: https://github.com/dyologician/a1\n"""',
   };
   return T[av]||T['other'];
 }
@@ -491,7 +491,7 @@ function ProtectAgent({ prefill, onPrefillConsumed }){
               h('div',null,
                 h('div',{style:{fontWeight:600,marginBottom:3}},'Install first'),
                 h('pre',{style:{fontFamily:'var(--mono)',fontSize:'var(--fxs)',color:'var(--t2)',marginTop:4}},
-                  agentType==='typescript'?'npm install a1':agentType==='go'?'go get github.com/dyologician/a1/sdk/go/a1':'pip install a1')))))),
+                  agentType==='typescript'?'npm install a1-ai':agentType==='go'?'go get github.com/dyologician/a1/sdk/go/a1':'pip install a1identity')))))),
 
       h('div',{style:{marginTop:20,display:'flex',gap:8}},
         h('button',{className:'btn btn-s',onClick:()=>setStep(2)},'← Back'),

@@ -228,8 +228,8 @@ function SnippetGenerator({ gwUrl }) {
 
       // Install hint
       h('div', { style: { marginTop: 8, fontSize: 'var(--fxs)', color: 'var(--t2)' } },
-        lang === 'python'     && '$ pip install a1',
-        lang === 'typescript' && '$ npm install a1',
+        lang === 'python'     && '$ pip install a1identity',
+        lang === 'typescript' && '$ npm install a1-ai',
         lang === 'go'         && '$ go get github.com/dyologician/a1/sdk/go/a1',
         lang === 'rust'       && '# Cargo.toml: a1 = { version = "2.8.0", features = ["wire"] }',
         lang === 'rest'       && 'Works with curl, fetch, axios, requests — any HTTP client.',
