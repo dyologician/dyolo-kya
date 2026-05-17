@@ -53,7 +53,13 @@ fn passport_guard_local_single_capability_end_to_end() {
     let clock = SystemClock;
 
     let sub = passport
-        .issue_sub(agent.verifying_key(), &["trade.equity"], 3600, &root, &clock)
+        .issue_sub(
+            agent.verifying_key(),
+            &["trade.equity"],
+            3600,
+            &root,
+            &clock,
+        )
         .unwrap();
 
     let mut chain = passport.new_chain().unwrap();
