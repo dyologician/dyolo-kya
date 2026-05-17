@@ -200,14 +200,9 @@ fn passport_issue_from_csv_matches_slice_issue() {
         &clock,
     )
     .unwrap();
-    let b = DyoloPassport::issue_from_csv(
-        "bot",
-        "trade.equity, portfolio.read",
-        3600,
-        &root,
-        &clock,
-    )
-    .unwrap();
+    let b =
+        DyoloPassport::issue_from_csv("bot", "trade.equity, portfolio.read", 3600, &root, &clock)
+            .unwrap();
 
     assert_eq!(
         a.capability_mask, b.capability_mask,
@@ -234,5 +229,8 @@ fn passport_sub_from_csv_matches_sub_slice() {
         .issue_sub_from_csv(agent.verifying_key(), "trade.equity", 3600, &root, &clock)
         .unwrap();
 
-    assert_eq!(a.scope_root, b.scope_root, "CSV and slice sub must produce the same scope_root");
+    assert_eq!(
+        a.scope_root, b.scope_root,
+        "CSV and slice sub must produce the same scope_root"
+    );
 }
