@@ -30,44 +30,35 @@ A1 closes this gap. It gives every agent in every delegation chain an unforgeabl
 ## Pages in this wiki
 
 ### Getting started
-
 - [Quickstart Guide](Quickstart) — From zero to a guarded agent in 5 minutes
 - [Passport Guide](Passport-Guide) — Full passport lifecycle and delegation patterns
 
 ### Architecture and security
-
 - [Security Model](Security-Model) — Ed25519, Blake3, NarrowingMatrix, nonce replay, revocation
 - [How It Compares](How-It-Compares) — A1 vs JWT vs SPIFFE/SPIRE vs OAuth2
+- [Post-Quantum Signatures](Post-Quantum) — Hybrid ML-DSA-44/65 + Ed25519, zero breaking changes
+- [Zero-Knowledge Commitments](ZK-Commitments) — ZkChainCommitment, reasoning traces, on-chain anchoring
+- [DID and Verifiable Credentials](DID-VC) — W3C DID, Verifiable Credentials, eIDAS compatibility
 
 ### Enterprise
-
 - [Enterprise Deployment](Enterprise-Deployment) — Production topology, TLS, Postgres, Redis, KMS
 - [KMS Integration](KMS-Integration) — AWS KMS, GCP KMS, HashiCorp Vault, Azure Key Vault
-- [SIEM Integration](SIEM-Integration) — Datadog, Splunk, OpenTelemetry *(coming soon)*
-- [Compliance](Compliance) — SOC 2 Type II, ISO 27001:2022 *(coming soon)*
-
-### Reference
-
-- [Capabilities Reference](https://github.com/dyologician/A1/blob/main/CAPABILITIES.md) — Every feature explained
-- [CLI Reference](CLI-Reference) — Full `a1` command docs *(coming soon)*
-- [Gateway API Reference](Gateway-API) — All REST endpoints *(coming soon)*
-- [Error Codes](Error-Codes) — All A1Error variants *(coming soon)*
-- [Wire Format](../spec/A1-PROTOCOL.md) — Formal protocol specification (RFC-style)
-- [Rust API docs](https://docs.rs/a1-ai) — Full rustdoc on docs.rs
+- [SIEM Integration](SIEM-Integration) — Datadog, Splunk, OpenTelemetry, NDJSON, buffered export
+- [Compliance](Compliance) — SOC 2 Type II, ISO 27001:2022, HIPAA mapping
+- [Swarm Coordination](Swarm) — Multi-agent swarms, roles, peer discovery
+- [Governance](Governance) — On-chain governance votes, DAO integration, audit reports
 
 ### SDK guides
+- [Python SDK](Python-SDK) — LangChain, LangGraph, CrewAI, AutoGen, LlamaIndex, KMS, SIEM
+- [TypeScript SDK](TypeScript-SDK) — LangChain.js, LangGraph, middleware, JWT exchange
+- [Go SDK](Go-SDK) — Typed client, WithPassport guard, PassportClient
 
-- [Python SDK](Python-SDK) — Installation and integrations *(coming soon)*
-- [TypeScript SDK](TypeScript-SDK) — Installation and types *(coming soon)*
-- [Go SDK](Go-SDK) — Installation and middleware *(coming soon)*
-
-### Feature guides
-
-- [Post-Quantum Signatures](Post-Quantum) — Hybrid ML-DSA setup *(coming soon)*
-- [Zero-Knowledge Commitments](ZK-Commitments) — ZkChainCommitment *(coming soon)*
-- [DID and Verifiable Credentials](DID-VC) — W3C DID and VC *(coming soon)*
-- [Swarm Coordination](Swarm) — Multi-agent swarm *(coming soon)*
-- [Governance](Governance) — On-chain governance *(coming soon)*
+### Reference
+- [CLI Reference](CLI-Reference) — All `a1` commands with flags and examples
+- [Gateway API Reference](Gateway-API) — All REST endpoints, request/response schemas, error codes
+- [Capabilities Reference](https://github.com/dyologician/A1/blob/main/CAPABILITIES.md) — Every feature explained
+- [Protocol spec](https://github.com/dyologician/A1/blob/main/spec/A1-PROTOCOL.md) — Formal wire protocol
+- [Rust API docs](https://docs.rs/a1-ai) — Full rustdoc on docs.rs
 
 ---
 
