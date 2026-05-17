@@ -147,13 +147,7 @@ fn passport_provable_receipt_commitment_tamper_detection() {
     let clock = SystemClock;
 
     let sub = passport
-        .issue_sub(
-            agent.verifying_key(),
-            &["trade.equity"],
-            3600,
-            &root,
-            &clock,
-        )
+        .issue_sub(agent.verifying_key(), &["trade.equity"], 3600, &root, &clock)
         .unwrap();
     let mut chain = passport.new_chain().unwrap();
     chain.push(sub);
@@ -209,13 +203,7 @@ fn passport_sub_from_csv_matches_sub_slice() {
         )
         .unwrap();
     let b = passport
-        .issue_sub_from_csv(
-            agent.verifying_key(),
-            "trade.equity",
-            3600,
-            &root,
-            &clock,
-        )
+        .issue_sub_from_csv(agent.verifying_key(), "trade.equity", 3600, &root, &clock)
         .unwrap();
 
     assert_eq!(
