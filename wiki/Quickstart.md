@@ -84,7 +84,7 @@ a1 passport issue \
 ### Add the guard to your tool
 
 ```python
-from a1identity.passport import PassportClient, a1_guard
+from a1.passport import PassportClient, a1_guard
 
 client = PassportClient("http://localhost:8080")
 
@@ -99,7 +99,7 @@ The decorator reads `signed_chain` and `executor_pk_hex` from the function's kwa
 ### What if authorization fails?
 
 ```python
-from a1identity.passport import PassportError
+from a1.passport import PassportError
 
 try:
     result = await execute_trade(

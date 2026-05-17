@@ -31,43 +31,43 @@ A1 closes this gap. It gives every agent in every delegation chain an unforgeabl
 
 ### Getting started
 
-- [Quickstart Guide](Quickstart) — From zero to a guarded agent tool in 5 minutes
-- [Passport Guide](Passport-Guide) — Deep-dive on DyoloPassport lifecycle and delegation patterns
+- [Quickstart Guide](Quickstart) — From zero to a guarded agent in 5 minutes
+- [Passport Guide](Passport-Guide) — Full passport lifecycle and delegation patterns
 
 ### Architecture and security
 
 - [Security Model](Security-Model) — Ed25519, Blake3, NarrowingMatrix, nonce replay, revocation
-- [How It Compares](How-It-Compares) — A1 vs JWT delegation vs SPIFFE/SPIRE vs OAuth2
+- [How It Compares](How-It-Compares) — A1 vs JWT vs SPIFFE/SPIRE vs OAuth2
 
 ### Enterprise
 
 - [Enterprise Deployment](Enterprise-Deployment) — Production topology, TLS, Postgres, Redis, KMS
 - [KMS Integration](KMS-Integration) — AWS KMS, GCP KMS, HashiCorp Vault, Azure Key Vault
-- [SIEM Integration](SIEM-Integration) — Datadog, Splunk, OpenTelemetry, NDJSON file
-- [Compliance](Compliance) — SOC 2 Type II, ISO 27001:2022, HIPAA notes
+- [SIEM Integration](SIEM-Integration) — Datadog, Splunk, OpenTelemetry *(coming soon)*
+- [Compliance](Compliance) — SOC 2 Type II, ISO 27001:2022 *(coming soon)*
 
 ### Reference
 
-- [Capabilities Reference](../CAPABILITIES.md) — Every feature explained for non-tech through enterprise
-- [CLI Reference](CLI-Reference) — Full `a1` command documentation with flags and examples
-- [Gateway API Reference](Gateway-API) — All REST endpoints, request/response schemas
-- [Error Codes](Error-Codes) — All `A1Error` variants, error codes, and HTTP status mappings
+- [Capabilities Reference](https://github.com/dyologician/A1/blob/main/CAPABILITIES.md) — Every feature explained
+- [CLI Reference](CLI-Reference) — Full `a1` command docs *(coming soon)*
+- [Gateway API Reference](Gateway-API) — All REST endpoints *(coming soon)*
+- [Error Codes](Error-Codes) — All A1Error variants *(coming soon)*
 - [Wire Format](../spec/A1-PROTOCOL.md) — Formal protocol specification (RFC-style)
 - [Rust API docs](https://docs.rs/a1-ai) — Full rustdoc on docs.rs
 
 ### SDK guides
 
-- [Python SDK](Python-SDK) — Installation, framework integrations, KMS, SIEM
-- [TypeScript SDK](TypeScript-SDK) — Installation, framework integrations, types
-- [Go SDK](Go-SDK) — Installation, middleware patterns, testing
+- [Python SDK](Python-SDK) — Installation and integrations *(coming soon)*
+- [TypeScript SDK](TypeScript-SDK) — Installation and types *(coming soon)*
+- [Go SDK](Go-SDK) — Installation and middleware *(coming soon)*
 
 ### Feature guides
 
-- [Post-Quantum Signatures](Post-Quantum) — Hybrid ML-DSA setup and migration guide
-- [Zero-Knowledge Commitments](ZK-Commitments) — `ZkChainCommitment` and zkVM integration
-- [DID and Verifiable Credentials](DID-VC) — W3C DID and VC issuance and verification
-- [Swarm Coordination](Swarm) — Multi-agent swarm registration and discovery
-- [Governance](Governance) — On-chain governance vote recording
+- [Post-Quantum Signatures](Post-Quantum) — Hybrid ML-DSA setup *(coming soon)*
+- [Zero-Knowledge Commitments](ZK-Commitments) — ZkChainCommitment *(coming soon)*
+- [DID and Verifiable Credentials](DID-VC) — W3C DID and VC *(coming soon)*
+- [Swarm Coordination](Swarm) — Multi-agent swarm *(coming soon)*
+- [Governance](Governance) — On-chain governance *(coming soon)*
 
 ---
 
@@ -111,14 +111,15 @@ A1 closes this gap. It gives every agent in every delegation chain an unforgeabl
 
 | Resource | URL |
 |---|---|
-| GitHub repository | https://github.com/dyologician/a1 |
-| Rust crate (a1) | https://crates.io/crates/a1 |
+| GitHub repository | https://github.com/dyologician/A1 |
+| Rust crate (core) | https://crates.io/crates/a1-ai |
 | Rust crate (a1-cli) | https://crates.io/crates/a1-cli |
 | Rust crate (a1-gateway) | https://crates.io/crates/a1-gateway |
 | Rust crate (a1-redis) | https://crates.io/crates/a1-redis |
 | Rust crate (a1-pg) | https://crates.io/crates/a1-pg |
-| Python package | https://pypi.org/project/a1 |
-| npm package | https://www.npmjs.com/package/a1 |
+| Rust crate (a1-identity) | https://crates.io/crates/a1-identity |
+| Python package | https://pypi.org/project/a1identity |
+| npm package | https://www.npmjs.com/package/a1-ai |
 | Rust API docs | https://docs.rs/a1-ai |
 | Security policy | [SECURITY.md](../SECURITY.md) |
 | Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
