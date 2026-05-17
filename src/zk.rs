@@ -395,8 +395,7 @@ mod tests {
         let now = 1_700_000_000u64;
 
         let intent = Intent::new("trade.equity").unwrap().hash();
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
-            .sign(&human);
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -414,8 +413,7 @@ mod tests {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
         let intent = Intent::new("read").unwrap().hash();
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
-            .sign(&human);
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -431,8 +429,7 @@ mod tests {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
         let intent = Intent::new("read").unwrap().hash();
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
-            .sign(&human);
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -447,8 +444,7 @@ mod tests {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
         let intent = Intent::new("read").unwrap().hash();
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
-            .sign(&human);
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -467,8 +463,7 @@ mod tests {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
         let intent = Intent::new("read").unwrap().hash();
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
-            .sign(&human);
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
