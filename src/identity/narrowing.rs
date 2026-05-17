@@ -65,11 +65,7 @@ impl NarrowingMatrix {
 
     /// Parse a comma-separated capability string (e.g. `"trade.equity,portfolio.read"`).
     pub fn from_csv(csv: &str) -> Self {
-        let caps: Vec<&str> = csv
-            .split(',')
-            .map(str::trim)
-            .filter(|s| !s.is_empty())
-            .collect();
+        let caps: Vec<&str> = csv.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
         Self::from_capabilities(&caps)
     }
 
@@ -87,11 +83,7 @@ impl NarrowingMatrix {
     /// carry capabilities that its parent does not have.
     pub fn is_subset_of(&self, parent: &NarrowingMatrix) -> bool {
         let read_u64 = |bytes: &[u8; 32], i: usize| -> u64 {
-            u64::from_le_bytes(
-                bytes[i * 8..(i + 1) * 8]
-                    .try_into()
-                    .expect("slice is 8 bytes"),
-            )
+            u64::from_le_bytes(bytes[i * 8..(i + 1) * 8].try_into().expect("slice is 8 bytes"))
         };
         (0..4).all(|i| {
             let s = read_u64(&self.mask, i);
@@ -114,8 +106,8 @@ impl NarrowingMatrix {
     /// Useful for computing the maximum allowed sub-mask from a parent.
     pub fn intersect(&self, other: &NarrowingMatrix) -> NarrowingMatrix {
         let mut mask = [0u8; 32];
-        for i in 0..32 {
-            mask[i] = self.mask[i] & other.mask[i];
+        for (i, item) in mask.iter_mut().enumerate() {
+            *item = self.mask[i] & other.mask[i];
         }
         NarrowingMatrix { mask }
     }
@@ -142,8 +134,9 @@ impl NarrowingMatrix {
 
     /// Reconstruct from a 32-byte hex string.
     pub fn from_hex(s: &str) -> Result<Self, A1Error> {
-        let bytes = hex::decode(s)
-            .map_err(|_| A1Error::WireFormatError("invalid narrowing matrix hex".into()))?;
+        let bytes = hex::decode(s).map_err(|_| {
+            A1Error::WireFormatError("invalid narrowing matrix hex".into())
+        })?;
         if bytes.len() != 32 {
             return Err(A1Error::WireFormatError(
                 "narrowing matrix must be exactly 32 bytes".into(),
@@ -284,10 +277,7 @@ impl CapabilityRegistry {
     /// that only explicitly declared capabilities can appear in a mask —
     /// typos are caught at mask-build time rather than silently granting
     /// an unexpected bit.
-    pub fn build_mask<S: AsRef<str>>(
-        &self,
-        capabilities: &[S],
-    ) -> Result<NarrowingMatrix, A1Error> {
+    pub fn build_mask<S: AsRef<str>>(&self, capabilities: &[S]) -> Result<NarrowingMatrix, A1Error> {
         let mut mask = [0u8; 32];
         for cap in capabilities {
             let name = cap.as_ref();
@@ -298,7 +288,7 @@ impl CapabilityRegistry {
                 ))
             })?;
             let byte_idx = (*slot as usize) / 8;
-            let bit_idx = (*slot as usize) % 8;
+            let bit_idx  = (*slot as usize) % 8;
             mask[byte_idx] |= 1u8 << bit_idx;
         }
         Ok(NarrowingMatrix::from_raw(mask))
@@ -309,7 +299,7 @@ impl CapabilityRegistry {
         let mut mask = [0u8; 32];
         for slot in self.slots.values() {
             let byte_idx = (*slot as usize) / 8;
-            let bit_idx = (*slot as usize) % 8;
+            let bit_idx  = (*slot as usize) % 8;
             mask[byte_idx] |= 1u8 << bit_idx;
         }
         NarrowingMatrix::from_raw(mask)
@@ -322,7 +312,11 @@ impl CapabilityRegistry {
 
     /// Return all registered capability names sorted by their slot index.
     pub fn names_in_order(&self) -> Vec<&str> {
-        let mut pairs: Vec<(&str, u8)> = self.slots.iter().map(|(k, &v)| (k.as_str(), v)).collect();
+        let mut pairs: Vec<(&str, u8)> = self
+            .slots
+            .iter()
+            .map(|(k, &v)| (k.as_str(), v))
+            .collect();
         pairs.sort_by_key(|&(_, slot)| slot);
         pairs.into_iter().map(|(name, _)| name).collect()
     }
@@ -366,11 +360,7 @@ mod tests {
 
     #[test]
     fn sub_is_subset_of_parent() {
-        let parent = NarrowingMatrix::from_capabilities(&[
-            "trade.equity",
-            "portfolio.read",
-            "portfolio.write",
-        ]);
+        let parent = NarrowingMatrix::from_capabilities(&["trade.equity", "portfolio.read", "portfolio.write"]);
         let child = NarrowingMatrix::from_capabilities(&["trade.equity"]);
         assert!(child.is_subset_of(&parent));
         assert!(!parent.is_subset_of(&child));
@@ -409,8 +399,7 @@ mod tests {
     #[test]
     fn csv_parsing() {
         let m = NarrowingMatrix::from_csv("trade.equity , portfolio.read, audit.read");
-        let expected =
-            NarrowingMatrix::from_capabilities(&["trade.equity", "portfolio.read", "audit.read"]);
+        let expected = NarrowingMatrix::from_capabilities(&["trade.equity", "portfolio.read", "audit.read"]);
         assert_eq!(m, expected);
     }
 
@@ -448,11 +437,10 @@ mod tests {
     #[test]
     fn registry_build_mask_subset() {
         let mut reg = CapabilityRegistry::new();
-        reg.register_all(&["trade.equity", "portfolio.read", "audit.read"])
-            .unwrap();
+        reg.register_all(&["trade.equity", "portfolio.read", "audit.read"]).unwrap();
 
         let parent = reg.build_mask(&["trade.equity", "portfolio.read"]).unwrap();
-        let child = reg.build_mask(&["trade.equity"]).unwrap();
+        let child  = reg.build_mask(&["trade.equity"]).unwrap();
 
         assert!(child.is_subset_of(&parent));
         assert!(!parent.is_subset_of(&child));
@@ -490,12 +478,7 @@ mod tests {
 
         for cap in &caps {
             let mask = reg.build_mask(&[cap.as_str()]).unwrap();
-            assert_eq!(
-                mask.capacity_count(),
-                1,
-                "cap '{}' must occupy exactly one bit",
-                cap
-            );
+            assert_eq!(mask.capacity_count(), 1, "cap '{}' must occupy exactly one bit", cap);
         }
     }
 

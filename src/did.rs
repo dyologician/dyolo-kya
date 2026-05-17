@@ -49,9 +49,9 @@ impl AgentDid {
         let id = parts.next().unwrap_or("");
 
         if scheme != "did" || method != DID_METHOD || id.is_empty() {
-            return Err(A1Error::WireFormatError(format!(
-                "expected did:a1:<hex>, got: {did}"
-            )));
+            return Err(A1Error::WireFormatError(
+                format!("expected did:a1:<hex>, got: {did}"),
+            ));
         }
         let bytes = hex::decode(id)
             .map_err(|_| A1Error::WireFormatError("DID identifier must be hex".into()))?;
@@ -119,15 +119,9 @@ pub struct DidDocument {
     pub assertion_method: Vec<String>,
     #[serde(rename = "capabilityDelegation")]
     pub capability_delegation: Vec<String>,
-    #[serde(
-        rename = "a1PassportNamespace",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "a1PassportNamespace", skip_serializing_if = "Option::is_none")]
     pub passport_namespace: Option<String>,
-    #[serde(
-        rename = "a1CapabilityMaskHex",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(rename = "a1CapabilityMaskHex", skip_serializing_if = "Option::is_none")]
     pub capability_mask_hex: Option<String>,
     #[serde(rename = "a1Version")]
     pub a1_version: String,
@@ -174,11 +168,7 @@ impl DidDocument {
     ///
     /// Allows verifiers to read the agent's authorized capability scope
     /// directly from the DID Document without needing the passport file.
-    pub fn with_passport_metadata(
-        mut self,
-        namespace: impl Into<String>,
-        mask_hex: impl Into<String>,
-    ) -> Self {
+    pub fn with_passport_metadata(mut self, namespace: impl Into<String>, mask_hex: impl Into<String>) -> Self {
         self.passport_namespace = Some(namespace.into());
         self.capability_mask_hex = Some(mask_hex.into());
         self
@@ -186,7 +176,8 @@ impl DidDocument {
 
     /// Serialize to a W3C JSON-LD string.
     pub fn to_json(&self) -> Result<String, A1Error> {
-        serde_json::to_string_pretty(self).map_err(|e| A1Error::WireFormatError(e.to_string()))
+        serde_json::to_string_pretty(self)
+            .map_err(|e| A1Error::WireFormatError(e.to_string()))
     }
 }
 
@@ -287,7 +278,10 @@ impl VerifiableCredential {
         let issuer_vk = issuer.verifying_key();
         let issuer_did = AgentDid::from_key(&issuer_vk);
 
-        let cred_id = format!("urn:a1:cred:{}", hex::encode(&chain_fingerprint[..16]));
+        let cred_id = format!(
+            "urn:a1:cred:{}",
+            hex::encode(&chain_fingerprint[..16])
+        );
         let issuance = unix_to_iso8601(issued_at_unix);
         let expiry = unix_to_iso8601(expiry_unix);
 
@@ -299,8 +293,13 @@ impl VerifiableCredential {
             a1_version: "2.8.0".into(),
         };
 
-        let signable =
-            vc_signable_bytes(&cred_id, issuer_did.as_str(), &issuance, &expiry, &subject);
+        let signable = vc_signable_bytes(
+            &cred_id,
+            issuer_did.as_str(),
+            &issuance,
+            &expiry,
+            &subject,
+        );
         let sig = issuer.sign_message(&signable);
 
         Ok(Self {
@@ -352,14 +351,13 @@ impl VerifiableCredential {
         let sig = ed25519_dalek::Signature::from_bytes(&sig_arr);
 
         vk.verify(&signable, &sig)
-            .map_err(|_| A1Error::HybridSignatureInvalid {
-                component: "vc-ed25519",
-            })
+            .map_err(|_| A1Error::HybridSignatureInvalid { component: "vc-ed25519" })
     }
 
     /// Serialize to a W3C JSON-LD string.
     pub fn to_json(&self) -> Result<String, A1Error> {
-        serde_json::to_string_pretty(self).map_err(|e| A1Error::WireFormatError(e.to_string()))
+        serde_json::to_string_pretty(self)
+            .map_err(|e| A1Error::WireFormatError(e.to_string()))
     }
 }
 
@@ -430,7 +428,7 @@ fn days_to_ymd(mut days: u64) -> (u64, u64, u64) {
 }
 
 fn is_leap(y: u64) -> bool {
-    (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
+    (y.is_multiple_of(4) && !y.is_multiple_of(100)) || y.is_multiple_of(400)
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -463,10 +461,7 @@ mod tests {
         let doc = DidDocument::for_identity(&id.verifying_key());
         assert!(doc.id.starts_with("did:a1:"));
         assert_eq!(doc.verification_method.len(), 1);
-        assert_eq!(
-            doc.verification_method[0].method_type,
-            "Ed25519VerificationKey2020"
-        );
+        assert_eq!(doc.verification_method[0].method_type, "Ed25519VerificationKey2020");
         assert_eq!(doc.a1_version, "2.8.0");
         assert!(doc.passport_namespace.is_none());
     }
@@ -501,10 +496,7 @@ mod tests {
 
         assert!(vc.verify().is_ok());
         assert_eq!(vc.vc_type[1], "A1CapabilityCredential");
-        assert_eq!(
-            vc.credential_subject.capabilities,
-            ["trade.equity", "portfolio.read"]
-        );
+        assert_eq!(vc.credential_subject.capabilities, ["trade.equity", "portfolio.read"]);
     }
 
     #[test]
@@ -526,9 +518,7 @@ mod tests {
         )
         .unwrap();
 
-        vc.credential_subject
-            .capabilities
-            .push("admin.everything".into());
+        vc.credential_subject.capabilities.push("admin.everything".into());
         assert!(vc.verify().is_err());
     }
 

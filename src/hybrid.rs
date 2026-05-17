@@ -32,11 +32,12 @@ const DOMAIN_HYBRID_ALGO: &str = "a1::hybrid::algo::v1";
 /// until then the framework validates the Ed25519 component and the binding
 /// context in `HybridSignature::pq_context`, ensuring the wire format is
 /// identical and no migration is required when PQ support is activated.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[repr(u8)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SignatureAlgorithm {
     /// Pure Ed25519 — the default for all v2.8.0 deployments.
+    #[default]
     Ed25519 = 1,
 
     /// CRYSTALS-Dilithium 2 (ML-DSA-44) + Ed25519 hybrid.
@@ -106,12 +107,6 @@ impl SignatureAlgorithm {
             Self::HybridMlDsa44Ed25519 => "hybrid-ml-dsa-44-ed25519",
             Self::HybridMlDsa65Ed25519 => "hybrid-ml-dsa-65-ed25519",
         }
-    }
-}
-
-impl Default for SignatureAlgorithm {
-    fn default() -> Self {
-        Self::Ed25519
     }
 }
 
@@ -308,16 +303,12 @@ impl HybridSignature {
 
         pk.classical_key
             .verify(msg, &self.classical_sig)
-            .map_err(|_| A1Error::HybridSignatureInvalid {
-                component: "ed25519",
-            })?;
+            .map_err(|_| A1Error::HybridSignatureInvalid { component: "ed25519" })?;
 
         let expected = Self::compute_pq_context(self.algorithm, msg, &self.pq_sig_bytes);
         let context_ok = expected[..].ct_eq(&self.pq_context[..]).unwrap_u8() == 1;
         if !context_ok {
-            return Err(A1Error::HybridSignatureInvalid {
-                component: "pq-context",
-            });
+            return Err(A1Error::HybridSignatureInvalid { component: "pq-context" });
         }
 
         #[cfg(feature = "post-quantum")]
@@ -433,7 +424,8 @@ impl<S: Signer> HybridSigner for ClassicalHybridAdapter<'_, S> {
 
     fn sign_hybrid(&self, msg: &[u8]) -> HybridSignature {
         let classical_sig = self.0.sign_message(msg);
-        let pq_context = HybridSignature::compute_pq_context(SignatureAlgorithm::Ed25519, msg, &[]);
+        let pq_context =
+            HybridSignature::compute_pq_context(SignatureAlgorithm::Ed25519, msg, &[]);
         HybridSignature {
             algorithm: SignatureAlgorithm::Ed25519,
             classical_sig,
@@ -570,10 +562,7 @@ mod tests {
             SignatureAlgorithm::Ed25519,
         ];
         let compat = ChainAlgorithmCompatibility::from_algorithms(&algs).unwrap();
-        assert_eq!(
-            compat,
-            ChainAlgorithmCompatibility::Uniform(SignatureAlgorithm::Ed25519)
-        );
+        assert_eq!(compat, ChainAlgorithmCompatibility::Uniform(SignatureAlgorithm::Ed25519));
     }
 
     #[test]
@@ -618,21 +607,9 @@ mod tests {
     #[test]
     fn pq_size_constants() {
         assert_eq!(SignatureAlgorithm::Ed25519.pq_public_key_len(), 0);
-        assert_eq!(
-            SignatureAlgorithm::HybridMlDsa44Ed25519.pq_public_key_len(),
-            1312
-        );
-        assert_eq!(
-            SignatureAlgorithm::HybridMlDsa65Ed25519.pq_public_key_len(),
-            1952
-        );
-        assert_eq!(
-            SignatureAlgorithm::HybridMlDsa44Ed25519.pq_signature_len(),
-            2420
-        );
-        assert_eq!(
-            SignatureAlgorithm::HybridMlDsa65Ed25519.pq_signature_len(),
-            3309
-        );
+        assert_eq!(SignatureAlgorithm::HybridMlDsa44Ed25519.pq_public_key_len(), 1312);
+        assert_eq!(SignatureAlgorithm::HybridMlDsa65Ed25519.pq_public_key_len(), 1952);
+        assert_eq!(SignatureAlgorithm::HybridMlDsa44Ed25519.pq_signature_len(), 2420);
+        assert_eq!(SignatureAlgorithm::HybridMlDsa65Ed25519.pq_signature_len(), 3309);
     }
 }

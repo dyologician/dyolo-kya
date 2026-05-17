@@ -284,11 +284,11 @@ impl IntentTree {
 
         let mut siblings = Vec::new();
         for layer in self.layers.iter().take(self.layers.len() - 1) {
-            let sibling_pos = if pos % 2 == 0 { pos + 1 } else { pos - 1 };
+            let sibling_pos = if pos.is_multiple_of(2) { pos + 1 } else { pos - 1 };
             if sibling_pos < layer.len() {
                 siblings.push(SiblingNode {
                     hash: layer[sibling_pos],
-                    is_left: pos % 2 == 1,
+                    is_left: !pos.is_multiple_of(2),
                 });
             }
             pos /= 2;

@@ -2,15 +2,14 @@ use blake3::Hasher;
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
-use crate::cert::{CertBuilder, DelegationCert};
+use crate::cert::DelegationCert;
 use crate::error::A1Error;
 use crate::identity::Signer;
-use crate::intent::{Intent, IntentHash};
 use crate::registry::fresh_nonce;
 
 const DOMAIN_NEG_REQUEST: &str = "a1::dyolo::negotiate::request::v2.8.0";
-const DOMAIN_NEG_OFFER: &str = "a1::dyolo::negotiate::offer::v2.8.0";
-const DOMAIN_NEG_ACCEPT: &str = "a1::dyolo::negotiate::accept::v2.8.0";
+const DOMAIN_NEG_OFFER:   &str = "a1::dyolo::negotiate::offer::v2.8.0";
+const DOMAIN_NEG_ACCEPT:  &str = "a1::dyolo::negotiate::accept::v2.8.0";
 
 // ── Message types ─────────────────────────────────────────────────────────────
 
@@ -108,11 +107,7 @@ impl CapabilityRequest {
     pub fn verify_freshness(&self, now_unix: u64, max_age_secs: u64) -> Result<(), A1Error> {
         let age = now_unix.saturating_sub(self.timestamp_unix);
         if age > max_age_secs {
-            return Err(A1Error::Expired(
-                0,
-                self.timestamp_unix + max_age_secs,
-                now_unix,
-            ));
+            return Err(A1Error::Expired(0, self.timestamp_unix + max_age_secs, now_unix));
         }
         Ok(())
     }
@@ -185,9 +180,7 @@ impl DelegationOffer {
 
     /// Verify the offerer's signature.
     pub fn verify_signature(&self) -> Result<VerifyingKey, A1Error> {
-        let pk_hex = self
-            .offerer_did
-            .strip_prefix("did:a1:")
+        let pk_hex = self.offerer_did.strip_prefix("did:a1:")
             .ok_or_else(|| A1Error::WireFormatError("invalid offerer DID".into()))?;
         let vk = parse_pk_hex(pk_hex)?;
 
@@ -253,9 +246,7 @@ impl DelegationAcceptance {
 
     /// Verify the acceptor's signature.
     pub fn verify_signature(&self) -> Result<VerifyingKey, A1Error> {
-        let pk_hex = self
-            .acceptor_did
-            .strip_prefix("did:a1:")
+        let pk_hex = self.acceptor_did.strip_prefix("did:a1:")
             .ok_or_else(|| A1Error::WireFormatError("invalid acceptor DID".into()))?;
         let vk = parse_pk_hex(pk_hex)?;
 
@@ -333,7 +324,11 @@ fn offer_signable_bytes(
     h.finalize().as_bytes().to_vec()
 }
 
-fn accept_signable_bytes(acceptor_did: &str, offer_nonce: &[u8; 16], timestamp: u64) -> Vec<u8> {
+fn accept_signable_bytes(
+    acceptor_did: &str,
+    offer_nonce: &[u8; 16],
+    timestamp: u64,
+) -> Vec<u8> {
     let mut h = Hasher::new_derive_key(DOMAIN_NEG_ACCEPT);
     h.update(&(acceptor_did.len() as u64).to_le_bytes());
     h.update(acceptor_did.as_bytes());
@@ -355,8 +350,8 @@ fn parse_pk_hex(hex_str: &str) -> Result<VerifyingKey, A1Error> {
 }
 
 fn parse_nonce_hex(hex_str: &str) -> Result<[u8; 16], A1Error> {
-    let bytes =
-        hex::decode(hex_str).map_err(|_| A1Error::WireFormatError("invalid nonce hex".into()))?;
+    let bytes = hex::decode(hex_str)
+        .map_err(|_| A1Error::WireFormatError("invalid nonce hex".into()))?;
     bytes
         .try_into()
         .map_err(|_| A1Error::WireFormatError("nonce must be 16 bytes".into()))
@@ -376,8 +371,9 @@ fn parse_sig_hex(hex_str: &str) -> Result<ed25519_dalek::Signature, A1Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::cert::CertBuilder;
     use crate::identity::DyoloIdentity;
-    use crate::intent::intent_hash;
+    use crate::intent::Intent;
 
     #[test]
     fn capability_request_sign_verify() {
@@ -413,7 +409,13 @@ mod tests {
     fn capability_request_freshness() {
         let requester = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let req = CapabilityRequest::build(&requester, vec!["read".into()], "read", 3600, now);
+        let req = CapabilityRequest::build(
+            &requester,
+            vec!["read".into()],
+            "read",
+            3600,
+            now,
+        );
         assert!(req.verify_freshness(now + 60, 300).is_ok());
         assert!(req.verify_freshness(now + 400, 300).is_err());
     }
@@ -424,9 +426,9 @@ mod tests {
         let offerer = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
 
-        let intent = intent_hash("trade.equity", b"");
-        let cert =
-            CertBuilder::new(requester.verifying_key(), intent, now, now + 3600).sign(&offerer);
+        let intent = Intent::new("trade.equity").unwrap().hash();
+        let cert = CertBuilder::new(requester.verifying_key(), intent, now, now + 3600)
+            .sign(&offerer);
 
         let req = CapabilityRequest::build(
             &requester,
@@ -449,11 +451,13 @@ mod tests {
         let requester = DyoloIdentity::generate();
         let offerer = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("read", b"");
+        let intent = Intent::new("read").unwrap().hash();
 
-        let cert =
-            CertBuilder::new(requester.verifying_key(), intent, now, now + 3600).sign(&offerer);
-        let req = CapabilityRequest::build(&requester, vec!["read".into()], "read", 3600, now);
+        let cert = CertBuilder::new(requester.verifying_key(), intent, now, now + 3600)
+            .sign(&offerer);
+        let req = CapabilityRequest::build(
+            &requester, vec!["read".into()], "read", 3600, now,
+        );
         let mut offer = DelegationOffer::build(&offerer, &req, cert, now, 120).unwrap();
         offer.offer_nonce = hex::encode([0u8; 16]);
         assert!(offer.verify_signature().is_err());

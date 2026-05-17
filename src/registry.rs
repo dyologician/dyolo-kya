@@ -105,10 +105,9 @@ impl MemoryRevocationStore {
 
     #[inline(always)]
     fn bloom_indices(fp: &[u8; 32]) -> [(usize, u64); 3] {
-        const IDENTITY_SEED: u64 = 0x64796F6C6F_A1_28_00;
+        const IDENTITY_SEED: u64 = 0x6479_6F6C_6FA1_2800;
         let h1 = u64::from_le_bytes(fp[0..8].try_into().unwrap()).wrapping_mul(IDENTITY_SEED);
-        let h2 = u64::from_le_bytes(fp[8..16].try_into().unwrap())
-            .wrapping_add(IDENTITY_SEED.rotate_left(17));
+        let h2 = u64::from_le_bytes(fp[8..16].try_into().unwrap()).wrapping_add(IDENTITY_SEED.rotate_left(17));
         let h3 = u64::from_le_bytes(fp[16..24].try_into().unwrap()) ^ IDENTITY_SEED;
         [
             ((h1 % 64) as usize, 1u64 << (h1.rotate_right(13) % 64)),
@@ -199,7 +198,7 @@ impl MemoryNonceStore {
     fn indices(nonce: &[u8; 16]) -> (usize, u64) {
         let e1 = u64::from_le_bytes(nonce[0..8].try_into().unwrap());
         let e2 = u64::from_le_bytes(nonce[8..16].try_into().unwrap());
-        const PROVENANCE_SEED: u64 = 0x64796F6C6F_A1_28_00;
+        const PROVENANCE_SEED: u64 = 0x6479_6F6C_6FA1_2800;
         let h = e1
             .wrapping_mul(PROVENANCE_SEED)
             .wrapping_add(e2.rotate_left(23))
@@ -482,11 +481,9 @@ pub mod r#async {
         ) -> Result<bool, A1StorageError> {
             let store = Arc::clone(&self.0);
             let k = key.to_vec();
-            tokio::task::spawn_blocking(move || {
-                store.check_and_record(&k, max_per_window, window_secs)
-            })
-            .await
-            .map_err(|e| A1StorageError::transient(e.to_string()))?
+            tokio::task::spawn_blocking(move || store.check_and_record(&k, max_per_window, window_secs))
+                .await
+                .map_err(|e| A1StorageError::transient(e.to_string()))?
         }
 
         async fn health_check(&self) -> Result<(), A1StorageError> {

@@ -1,7 +1,6 @@
 use blake3::Hasher;
 use serde::{Deserialize, Serialize};
 
-use crate::error::A1Error;
 use crate::identity::Signer;
 use crate::zk::{anchor_hash as zk_anchor_hash, ZkChainCommitment};
 
@@ -239,7 +238,7 @@ fn build_evm_calldata(
 
     let did_bytes = passport_did.as_bytes();
     let did_len = did_bytes.len();
-    let did_padded_len = (did_len + 31) / 32 * 32;
+    let did_padded_len = did_len.div_ceil(32) * 32;
 
     // ABI layout (32 bytes per slot):
     //   [0]  anchorHash  (bytes32, static)
@@ -268,7 +267,7 @@ fn build_evm_calldata(
     out.extend_from_slice(&len_slot);
 
     out.extend_from_slice(did_bytes);
-    out.extend(std::iter::repeat(0u8).take(did_padded_len - did_len));
+    out.extend(std::iter::repeat_n(0u8, did_padded_len - did_len));
 
     out
 }
@@ -321,15 +320,19 @@ mod hex_32 {
 mod tests {
     use super::*;
     use crate::{
-        cert::CertBuilder, chain::DyoloChain, identity::DyoloIdentity, intent::intent_hash,
+        cert::CertBuilder,
+        chain::DyoloChain,
+        identity::DyoloIdentity,
+        intent::Intent,
         zk::ZkChainCommitment,
     };
 
     fn make_commitment(human: &DyoloIdentity) -> ZkChainCommitment {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("trade.equity", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(human);
+        let intent = Intent::new("trade.equity").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
         ZkChainCommitment::seal(&chain, &intent, &[0u8; 32], now, human, Some("acme-bot"))
@@ -374,8 +377,9 @@ mod tests {
         let human = DyoloIdentity::generate();
         let commitment = make_commitment(&human);
         let did = format!("did:a1:{}", "a".repeat(64));
-        let receipt =
-            AnchoredReceipt::prepare(commitment, &did, AnchorNetwork::Base, 1_700_000_000, &human);
+        let receipt = AnchoredReceipt::prepare(
+            commitment, &did, AnchorNetwork::Base, 1_700_000_000, &human,
+        );
         let raw = hex::decode(receipt.evm_calldata.unwrap()).unwrap();
         assert_eq!(&raw[0..4], &[0xd5, 0xe5, 0xb5, 0xb0]);
         assert!(raw.len() >= 4 + 32 * 5);
@@ -386,11 +390,7 @@ mod tests {
         let human = DyoloIdentity::generate();
         let commitment = make_commitment(&human);
         let receipt = AnchoredReceipt::prepare(
-            commitment,
-            "did:a1:abc",
-            AnchorNetwork::Ethereum,
-            1_700_000_000,
-            &human,
+            commitment, "did:a1:abc", AnchorNetwork::Ethereum, 1_700_000_000, &human,
         );
         assert!(receipt.anchor_hash_hex().starts_with("0x"));
         assert_eq!(receipt.anchor_hash_hex().len(), 66);
@@ -401,16 +401,9 @@ mod tests {
         let human = DyoloIdentity::generate();
         let commitment = make_commitment(&human);
         let receipt = AnchoredReceipt::prepare(
-            commitment,
-            "did:a1:abc",
-            AnchorNetwork::Polygon,
-            1_700_000_000,
-            &human,
+            commitment, "did:a1:abc", AnchorNetwork::Polygon, 1_700_000_000, &human,
         )
-        .with_confirmation(
-            "0xdeadbeef00000000000000000000000000000000000000000000000000000000",
-            19_000_000,
-        );
+        .with_confirmation("0xdeadbeef00000000000000000000000000000000000000000000000000000000", 19_000_000);
         assert!(receipt.is_anchored());
         assert_eq!(receipt.block_number, Some(19_000_000));
     }
@@ -421,11 +414,7 @@ mod tests {
         let commitment = make_commitment(&human);
         let h1 = zk_anchor_hash(&commitment);
         let receipt = AnchoredReceipt::prepare(
-            commitment.clone(),
-            "did:a1:abc",
-            AnchorNetwork::Ethereum,
-            1_700_000_000,
-            &human,
+            commitment.clone(), "did:a1:abc", AnchorNetwork::Ethereum, 1_700_000_000, &human,
         );
         assert_eq!(receipt.anchor_hash, h1);
     }

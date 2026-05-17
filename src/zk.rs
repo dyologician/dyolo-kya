@@ -8,7 +8,7 @@ use crate::identity::Signer;
 use crate::intent::IntentHash;
 
 const DOMAIN_ZK_COMMIT: &str = "a1::dyolo::zk::commit::v2.8.0";
-const DOMAIN_ZK_BIND: &str = "a1::dyolo::zk::bind::v2.8.0";
+const DOMAIN_ZK_BIND:   &str = "a1::dyolo::zk::bind::v2.8.0";
 
 /// How a `ZkChainCommitment` was produced.
 ///
@@ -115,8 +115,7 @@ impl ZkChainCommitment {
         passport_namespace: Option<&str>,
     ) -> Self {
         let chain_fp = chain.fingerprint();
-        let commitment =
-            compute_commitment(&chain_fp, intent, narrowing_commitment, sealed_at_unix);
+        let commitment = compute_commitment(&chain_fp, intent, narrowing_commitment, sealed_at_unix);
         let sig = authority.sign_message(&commitment);
         let authority_did = format!(
             "did:a1:{}",
@@ -152,12 +151,7 @@ impl ZkChainCommitment {
             .try_into()
             .map_err(|_| A1Error::WireFormatError("chain fingerprint must be 32 bytes".into()))?;
 
-        let expected = compute_commitment(
-            &chain_fp,
-            &self.intent,
-            narrowing_commitment,
-            self.sealed_at_unix,
-        );
+        let expected = compute_commitment(&chain_fp, &self.intent, narrowing_commitment, self.sealed_at_unix);
 
         if expected[..].ct_eq(&self.commitment[..]).unwrap_u8() == 0 {
             return Err(A1Error::InvalidSubScopeProof);
@@ -170,8 +164,7 @@ impl ZkChainCommitment {
             }
         }
 
-        let pk_hex = self
-            .authority_did
+        let pk_hex = self.authority_did
             .strip_prefix("did:a1:")
             .ok_or_else(|| A1Error::WireFormatError("invalid authority DID".into()))?;
         let pk_bytes = hex::decode(pk_hex)
@@ -192,9 +185,7 @@ impl ZkChainCommitment {
         use ed25519_dalek::Verifier;
         authority_vk
             .verify(&self.commitment, &sig)
-            .map_err(|_| A1Error::HybridSignatureInvalid {
-                component: "zk-commitment",
-            })
+            .map_err(|_| A1Error::HybridSignatureInvalid { component: "zk-commitment" })
     }
 
     /// Attach an external zkVM proof to this commitment.
@@ -284,10 +275,7 @@ pub struct ZkTraceProof {
     /// `did:a1:` identifier of the sealing authority.
     pub authority_did: String,
     /// Optional zkVM proof bytes (hex). Activate with the RISC Zero guest program.
-    #[cfg_attr(
-        feature = "serde",
-        serde(default, skip_serializing_if = "String::is_empty")
-    )]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "String::is_empty"))]
     pub zk_proof_hex: String,
 }
 
@@ -302,8 +290,10 @@ impl ZkTraceProof {
         trace_root: crate::provenance::ProvenanceRoot,
         authority: &dyn crate::identity::Signer,
     ) -> Self {
-        let combined =
-            trace_combined_commitment(&chain_commitment.commitment, &trace_root.merkle_root);
+        let combined = trace_combined_commitment(
+            &chain_commitment.commitment,
+            &trace_root.merkle_root,
+        );
         let sig = authority.sign_message(&combined);
         let authority_did = format!(
             "did:a1:{}",
@@ -326,11 +316,7 @@ impl ZkTraceProof {
             &self.trace_root.merkle_root,
         );
         use subtle::ConstantTimeEq;
-        if expected[..]
-            .ct_eq(&self.combined_commitment[..])
-            .unwrap_u8()
-            == 0
-        {
+        if expected[..].ct_eq(&self.combined_commitment[..]).unwrap_u8() == 0 {
             return Err(crate::error::A1Error::InvalidSubScopeProof);
         }
 
@@ -353,11 +339,10 @@ impl ZkTraceProof {
         let sig = ed25519_dalek::Signature::from_bytes(&sig_arr);
 
         use ed25519_dalek::Verifier;
-        vk.verify(&self.combined_commitment, &sig).map_err(|_| {
-            crate::error::A1Error::HybridSignatureInvalid {
+        vk.verify(&self.combined_commitment, &sig)
+            .map_err(|_| crate::error::A1Error::HybridSignatureInvalid {
                 component: "zk-trace",
-            }
-        })
+            })
     }
 
     /// Attach a zkVM proof to upgrade from commitment-only to full ZK.
@@ -397,12 +382,10 @@ pub(crate) mod hex_32_serde {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::chain::SystemClock;
     use crate::{
         cert::CertBuilder,
         identity::DyoloIdentity,
-        intent::intent_hash,
-        registry::{MemoryNonceStore, MemoryRevocationStore},
+        intent::Intent,
     };
 
     #[test]
@@ -411,18 +394,16 @@ mod tests {
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
 
-        let intent = intent_hash("trade.equity", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
+        let intent = Intent::new("trade.equity").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
         let narrowing = [0u8; 32];
-        let commitment =
-            ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, Some("acme-bot"));
+        let commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, Some("acme-bot"));
 
-        assert!(commitment
-            .verify_commitment(&narrowing, now, Some(86400))
-            .is_ok());
+        assert!(commitment.verify_commitment(&narrowing, now, Some(86400)).is_ok());
         assert_eq!(commitment.mode, ZkProofMode::Blake3Commit);
         assert!(!commitment.has_zk_proof());
     }
@@ -432,14 +413,14 @@ mod tests {
         let human = DyoloIdentity::generate();
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("read", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
+        let intent = Intent::new("read").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
         let narrowing = [0u8; 32];
-        let mut commitment =
-            ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
+        let mut commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
         commitment.commitment[0] ^= 0xFF;
         assert!(commitment.verify_commitment(&narrowing, now, None).is_err());
     }
@@ -449,16 +430,15 @@ mod tests {
         let human = DyoloIdentity::generate();
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("read", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
+        let intent = Intent::new("read").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
         let narrowing = [0u8; 32];
         let commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
-        assert!(commitment
-            .verify_commitment(&narrowing, now + 7200, Some(3600))
-            .is_err());
+        assert!(commitment.verify_commitment(&narrowing, now + 7200, Some(3600)).is_err());
     }
 
     #[test]
@@ -466,8 +446,9 @@ mod tests {
         let human = DyoloIdentity::generate();
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("read", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
+        let intent = Intent::new("read").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -485,8 +466,9 @@ mod tests {
         let human = DyoloIdentity::generate();
         let agent = DyoloIdentity::generate();
         let now = 1_700_000_000u64;
-        let intent = intent_hash("read", b"");
-        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
+        let intent = Intent::new("read").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
         let mut chain = DyoloChain::new(human.verifying_key(), intent);
         chain.push(cert);
 
@@ -496,65 +478,63 @@ mod tests {
     }
 }
 
-#[test]
-fn zk_trace_proof_seal_verify() {
-    use crate::{
-        cert::CertBuilder,
-        identity::DyoloIdentity,
-        intent::intent_hash,
-        provenance::{ReasoningStepKind, ReasoningTrace},
-    };
+    #[test]
+    fn zk_trace_proof_seal_verify() {
+        use crate::{
+            identity::DyoloIdentity,
+            intent::Intent,
+            cert::CertBuilder,
+            provenance::{ReasoningTrace, ReasoningStepKind},
+        };
 
-    let human = DyoloIdentity::generate();
-    let agent = DyoloIdentity::generate();
-    let now = 1_700_000_000u64;
-    let intent = intent_hash("trade.equity", b"");
-    let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
-    let mut chain = DyoloChain::new(human.verifying_key(), intent);
-    chain.push(cert);
+        let human = DyoloIdentity::generate();
+        let agent = DyoloIdentity::generate();
+        let now = 1_700_000_000u64;
+        let intent = Intent::new("trade.equity").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
+        let mut chain = DyoloChain::new(human.verifying_key(), intent);
+        chain.push(cert);
 
-    let narrowing = [0u8; 32];
-    let chain_fp = chain.fingerprint();
-    let commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
+        let narrowing = [0u8; 32];
+        let chain_fp = chain.fingerprint();
+        let commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
 
-    let mut trace = ReasoningTrace::new(now);
-    trace.record(ReasoningStepKind::Thought, b"analyzing trade", now + 1);
-    trace.record(
-        ReasoningStepKind::FinalAction,
-        b"execute trade.equity AAPL 100",
-        now + 2,
-    );
-    let root = trace.finalize(now + 3, &chain_fp).unwrap();
+        let mut trace = ReasoningTrace::new(now);
+        trace.record(ReasoningStepKind::Thought, b"analyzing trade", now + 1);
+        trace.record(ReasoningStepKind::FinalAction, b"execute trade.equity AAPL 100", now + 2);
+        let root = trace.finalize(now + 3, &chain_fp).unwrap();
 
-    let proof = ZkTraceProof::seal(commitment, root, &human);
-    assert!(proof.verify().is_ok());
-    assert!(!proof.has_zk_proof());
-}
+        let proof = ZkTraceProof::seal(commitment, root, &human);
+        assert!(proof.verify().is_ok());
+        assert!(!proof.has_zk_proof());
+    }
 
-#[test]
-fn zk_trace_proof_tampered_fails() {
-    use crate::{
-        cert::CertBuilder,
-        identity::DyoloIdentity,
-        intent::intent_hash,
-        provenance::{ReasoningStepKind, ReasoningTrace},
-    };
+    #[test]
+    fn zk_trace_proof_tampered_fails() {
+        use crate::{
+            identity::DyoloIdentity,
+            intent::Intent,
+            cert::CertBuilder,
+            provenance::{ReasoningTrace, ReasoningStepKind},
+        };
 
-    let human = DyoloIdentity::generate();
-    let agent = DyoloIdentity::generate();
-    let now = 1_700_000_000u64;
-    let intent = intent_hash("read", b"");
-    let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600).sign(&human);
-    let mut chain = DyoloChain::new(human.verifying_key(), intent);
-    chain.push(cert);
-    let chain_fp = chain.fingerprint();
+        let human = DyoloIdentity::generate();
+        let agent = DyoloIdentity::generate();
+        let now = 1_700_000_000u64;
+        let intent = Intent::new("read").unwrap().hash();
+        let cert = CertBuilder::new(agent.verifying_key(), intent, now, now + 3600)
+            .sign(&human);
+        let mut chain = DyoloChain::new(human.verifying_key(), intent);
+        chain.push(cert);
+        let chain_fp = chain.fingerprint();
 
-    let mut trace = ReasoningTrace::new(now);
-    trace.record(ReasoningStepKind::Thought, b"step one", now + 1);
-    let root = trace.finalize(now + 2, &chain_fp).unwrap();
+        let mut trace = ReasoningTrace::new(now);
+        trace.record(ReasoningStepKind::Thought, b"step one", now + 1);
+        let root = trace.finalize(now + 2, &chain_fp).unwrap();
 
-    let commitment = ZkChainCommitment::seal(&chain, &intent, &[0u8; 32], now, &human, None);
-    let mut proof = ZkTraceProof::seal(commitment, root, &human);
-    proof.combined_commitment[0] ^= 0xFF;
-    assert!(proof.verify().is_err());
-}
+        let commitment = ZkChainCommitment::seal(&chain, &intent, &[0u8; 32], now, &human, None);
+        let mut proof = ZkTraceProof::seal(commitment, root, &human);
+        proof.combined_commitment[0] ^= 0xFF;
+        assert!(proof.verify().is_err());
+    }
