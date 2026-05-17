@@ -150,7 +150,13 @@ fn passport_provable_receipt_commitment_tamper_detection() {
     let clock = SystemClock;
 
     let sub = passport
-        .issue_sub(agent.verifying_key(), &["trade.equity"], 3600, &root, &clock)
+        .issue_sub(
+            agent.verifying_key(),
+            &["trade.equity"],
+            3600,
+            &root,
+            &clock,
+        )
         .unwrap();
     let mut chain = passport.new_chain().unwrap();
     chain.push(sub);
