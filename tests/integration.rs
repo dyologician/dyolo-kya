@@ -839,8 +839,14 @@ mod passport_tests {
     fn passport_issue_from_csv_matches_slice() {
         let root = DyoloIdentity::generate();
         let clock = SystemClock;
-        let a = DyoloPassport::issue("ns", &["trade.equity", "portfolio.read"], 3600, &root, &clock)
-            .unwrap();
+        let a = DyoloPassport::issue(
+            "ns",
+            &["trade.equity", "portfolio.read"],
+            3600,
+            &root,
+            &clock,
+        )
+        .unwrap();
         let b =
             DyoloPassport::issue_from_csv("ns", "trade.equity, portfolio.read", 3600, &root, &clock)
                 .unwrap();
@@ -862,7 +868,9 @@ mod passport_tests {
         chain.push(sub);
 
         let intent = Intent::new("trade.equity").unwrap();
-        let receipt = passport.guard_local(&chain, &agent.verifying_key(), &intent).unwrap();
+        let receipt = passport
+            .guard_local(&chain, &agent.verifying_key(), &intent)
+            .unwrap();
         assert_eq!(receipt.inner.chain_depth, 1);
         assert!(receipt.verify_commitment());
     }
