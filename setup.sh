@@ -324,6 +324,18 @@ try_docker() {
   fi
 
   echo -e "  ${DIM}Starting via Docker Compose...${RESET}"
+
+  # ── Auto-generate .env if missing (required for gateway to start) ──────────
+  if [ ! -f ".env" ]; then
+    echo -e "  ${DIM}First-time setup: generating secure keys...${RESET}"
+    printf "A1_SIGNING_KEY_HEX=%s\nA1_MAC_KEY_HEX=%s\nA1_ADMIN_SECRET=%s\n" \
+      "$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))')" \
+      "$(openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))')" \
+      "$(openssl rand -hex 16 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(16))')" \
+      > .env
+    echo -e "  ${GREEN}Secure keys generated!${RESET}"
+  fi
+
   docker compose -f "${compose_file}" up -d --quiet-pull 2>/dev/null \
     || docker-compose -f "${compose_file}" up -d 2>/dev/null \
     || return 1

@@ -140,6 +140,17 @@ function Start-ViaDocker {
            else { return $false }
 
     Write-Host "  Starting via Docker Compose..." -ForegroundColor DarkGray
+
+    # Auto-generate .env if missing (required for gateway to start)
+    if (-not (Test-Path ".env")) {
+        Write-Host "  First-time setup: generating secure keys..." -ForegroundColor DarkGray
+        $key1 = -join ((1..32) | ForEach-Object { '{0:x2}' -f (Get-Random -Max 256) })
+        $key2 = -join ((1..32) | ForEach-Object { '{0:x2}' -f (Get-Random -Max 256) })
+        $key3 = -join ((1..16) | ForEach-Object { '{0:x2}' -f (Get-Random -Max 256) })
+        "A1_SIGNING_KEY_HEX=$key1`nA1_MAC_KEY_HEX=$key2`nA1_ADMIN_SECRET=$key3" | Set-Content ".env"
+        Write-Ok "Secure keys generated!"
+    }
+
     docker compose -f $cf up -d --quiet-pull 2>$null
     return (Wait-ForHealth)
 }
