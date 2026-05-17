@@ -4,7 +4,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/a1-ai.svg)](https://crates.io/crates/a1-ai)
 [![npm](https://img.shields.io/npm/v/a1-ai.svg)](https://www.npmjs.com/package/a1-ai)
-[![PyPI](https://img.shields.io/pypi/v/a1ai.svg)](https://pypi.org/project/a1ai/)
+[![PyPI](https://img.shields.io/pypi/v/a1identity.svg)](https://pypi.org/project/a1identity/)
 [![Go Reference](https://img.shields.io/badge/go-reference-blue)](https://pkg.go.dev/github.com/dyologician/a1/sdk/go/a1/kya)
 [![CI](https://github.com/dyologician/a1/actions/workflows/ci.yml/badge.svg)](https://github.com/dyologician/a1/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
@@ -50,7 +50,7 @@ a1-ai = { version = "2.8", features = ["full"] }
 **Python**
 
 ```bash
-pip install a1ai
+pip install a1identity
 ```
 
 **TypeScript / Node.js**
@@ -711,7 +711,7 @@ async def execute_trade(symbol: str, qty: int) -> dict:
     return await broker.place_order(symbol, qty)
 ```
 
-Install the optional dependency: `pip install "a1ai[siem-otel]"`. All spans use the `dyolo.a1.*` attribute namespace. If `opentelemetry-sdk` is absent, the module silently degrades to a no-op so the rest of your code compiles unchanged.
+Install the optional dependency: `pip install "a1identity[siem-otel]"`. All spans use the `dyolo.a1.*` attribute namespace. If `opentelemetry-sdk` is absent, the module silently degrades to a no-op so the rest of your code compiles unchanged.
 
 ### Namespace isolation (multi-tenant)
 
