@@ -400,9 +400,18 @@ mod tests {
         chain.push(cert);
 
         let narrowing = [0u8; 32];
-        let commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, Some("acme-bot"));
+        let commitment = ZkChainCommitment::seal(
+            &chain,
+            &intent,
+            &narrowing,
+            now,
+            &human,
+            Some("acme-bot"),
+        );
 
-        assert!(commitment.verify_commitment(&narrowing, now, Some(86400)).is_ok());
+        assert!(commitment
+            .verify_commitment(&narrowing, now, Some(86400))
+            .is_ok());
         assert_eq!(commitment.mode, ZkProofMode::Blake3Commit);
         assert!(!commitment.has_zk_proof());
     }
@@ -418,7 +427,8 @@ mod tests {
         chain.push(cert);
 
         let narrowing = [0u8; 32];
-        let mut commitment = ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
+        let mut commitment =
+            ZkChainCommitment::seal(&chain, &intent, &narrowing, now, &human, None);
         commitment.commitment[0] ^= 0xFF;
         assert!(commitment.verify_commitment(&narrowing, now, None).is_err());
     }
