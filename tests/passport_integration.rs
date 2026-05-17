@@ -124,7 +124,10 @@ fn passport_issue_sub_accepts_exact_capability_set() {
         &root,
         &clock,
     );
-    assert!(result.is_ok(), "issue_sub must accept the exact passport capability set");
+    assert!(
+        result.is_ok(),
+        "issue_sub must accept the exact passport capability set"
+    );
 }
 
 #[test]
@@ -147,13 +150,7 @@ fn passport_provable_receipt_commitment_tamper_detection() {
     let clock = SystemClock;
 
     let sub = passport
-        .issue_sub(
-            agent.verifying_key(),
-            &["trade.equity"],
-            3600,
-            &root,
-            &clock,
-        )
+        .issue_sub(agent.verifying_key(), &["trade.equity"], 3600, &root, &clock)
         .unwrap();
     let mut chain = passport.new_chain().unwrap();
     chain.push(sub);
