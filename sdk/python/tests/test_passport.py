@@ -28,7 +28,7 @@ SAMPLE_RECEIPT = {
 class TestPassportClientAuthorize:
     @respx.mock
     def test_authorize_success(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(200, json=SAMPLE_RECEIPT)
         )
         client = PassportClient(BASE)
@@ -43,7 +43,7 @@ class TestPassportClientAuthorize:
 
     @respx.mock
     def test_authorize_failure_raises_passport_error(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(
                 403, json={"error": "scope violation", "error_code": "SCOPE_VIOLATION"}
             )
@@ -68,7 +68,7 @@ class TestPassportClientAuthorize:
             "narrowing_commitment_hex": "cc" * 32,
             "chain_depth": 2,
         }
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(200, json=flat)
         )
         client = PassportClient(BASE)
@@ -81,7 +81,7 @@ class TestPassportClientAuthorize:
     @pytest.mark.asyncio
     @respx.mock
     async def test_authorize_async_success(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(200, json=SAMPLE_RECEIPT)
         )
         client = PassportClient(BASE)
@@ -97,7 +97,7 @@ class TestPassportClientAuthorize:
 class TestDyoloGuardDecorator:
     @respx.mock
     def test_sync_decorator_calls_authorize_then_function(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(200, json=SAMPLE_RECEIPT)
         )
         client = PassportClient(BASE)
@@ -115,7 +115,7 @@ class TestDyoloGuardDecorator:
 
     @respx.mock
     def test_sync_decorator_blocks_on_auth_failure(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(403, json={"error": "denied", "error_code": "DENIED"})
         )
         client = PassportClient(BASE)
@@ -147,7 +147,7 @@ class TestDyoloGuardDecorator:
     @pytest.mark.asyncio
     @respx.mock
     async def test_async_decorator_succeeds(self):
-        respx.post(f"{BASE}/authorize").mock(
+        respx.post(f"{BASE}/v1/passport/authorize").mock(
             return_value=httpx.Response(200, json=SAMPLE_RECEIPT)
         )
         client = PassportClient(BASE)

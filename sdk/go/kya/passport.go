@@ -135,7 +135,16 @@ func WithA1Passport[T any, R any](
 			}
 		}
 
-		if _, err := client.AuthorizePassport(ctx, chain, opts.Capability, executorPK, nil); err != nil {
+			if _, err := client.AuthorizePassport(ctx, chain, opts.Capability, executorPK, nil); err != nil {
+			// Wrap A1Error (HTTP-level denial) into PassportError for a consistent
+			// error type from WithA1Passport regardless of failure source.
+			if a1err, ok := err.(*A1Error); ok {
+				return zero, &PassportError{
+					Message:   a1err.Message,
+					ErrorCode: a1err.ErrorCode,
+					Status:    a1err.Status,
+				}
+			}
 			return zero, err
 		}
 

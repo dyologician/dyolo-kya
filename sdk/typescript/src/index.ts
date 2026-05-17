@@ -758,17 +758,14 @@ export class A1Client {
     const { requesterSigningKeyHex, requestedCapabilities, intentName, ttlSeconds = 3600 } = opts;
 
     const skBytes = hexToBytes(requesterSigningKeyHex);
-    let sign: (msg: Uint8Array, sk: Uint8Array) => Promise<Uint8Array>;
-    let getPublicKey: (sk: Uint8Array) => Promise<Uint8Array>;
-    try {
-      const noble = await import("@noble/ed25519");
-      sign = noble.sign;
-      getPublicKey = noble.getPublicKey;
-    } catch {
+    // @noble/ed25519 is an optional peer dependency used only by negotiateDelegation.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const noble = await import("@noble/ed25519" as any).catch(() => {
       throw new Error(
         "negotiateDelegation requires @noble/ed25519. Install it: npm install @noble/ed25519"
       );
-    }
+    }) as { sign: (m: Uint8Array, sk: Uint8Array) => Promise<Uint8Array>; getPublicKey: (sk: Uint8Array) => Promise<Uint8Array> };
+    const { sign, getPublicKey } = noble;
     const pkBytes = await getPublicKey(skBytes);
     const pkHex = bytesToHex(pkBytes);
     const requesterDid = `did:a1:${pkHex}`;
@@ -996,7 +993,22 @@ export type {
 } from "./passport.js";
 export { PassportClient, PassportError, withA1Passport, PassportGuard } from "./passport.js";
 
-
+export type {
+    DidDocument,
+    DidVerificationMethod,
+    VerifiableCredential,
+    VcProof,
+    VcCredentialSubject,
+    IssueVcOptions,
+    IssueVcResult,
+    VerifyVcResult,
+    AnchorNetwork,
+    AnchorReceiptOptions,
+    AnchorReceiptResult,
+    SubmissionGuide,
+    NegotiateOptions,
+    NegotiationResult,
+};
 
 // ── Middleware and enterprise helpers re-exports ──────────────────────────────
 //

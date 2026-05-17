@@ -97,5 +97,16 @@
     "ts-jest": "^29.1.4",
     "typescript": "^5.4.0",
     "ts-node": "^10.9.2"
+  },
+  "optionalDependencies": {
+    "@noble/ed25519": "^2.1.0"
+  },
+  "peerDependencies": {
+    "@noble/ed25519": "^2.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@noble/ed25519": {
+      "optional": true
+    }
   }
 }
