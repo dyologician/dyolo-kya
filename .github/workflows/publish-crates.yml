@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: crates-io
-      url: https://crates.io/crates/a1
+      url: https://crates.io/crates/a1-ai
 
     steps:
       - name: Checkout repository
@@ -29,12 +29,12 @@ jobs:
       - name: Run full test suite before publishing
         run: cargo test --all-features
 
-      - name: Publish a1 (core)
-        run: cargo publish -p a1
+      - name: Publish a1-ai (core)
+        run: cargo publish -p a1-ai
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-      - name: Wait for crates.io to index a1
+      - name: Wait for crates.io to index a1-ai
         run: sleep 120
 
       - name: Publish a1-redis

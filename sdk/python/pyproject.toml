@@ -3,7 +3,7 @@ requires      = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name         = "a1"
+name         = "a1-ai"
 version      = "2.8.0"
 description  = "A1 — Python SDK for AI agent identity and delegation authorization with cryptographic chain-of-custody"
 readme       = "sdk-python-README.md"

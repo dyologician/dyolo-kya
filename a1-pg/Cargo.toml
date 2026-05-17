@@ -16,7 +16,7 @@ tokio  = { version = "1", features = ["full"] }
 anyhow = "1"
 
 [dependencies]
-a1          = { path = "..", version = "2.8", features = ["async"] }
+a1          = { package = "a1-ai", path = "..", version = "2.8", features = ["async"] }
 sqlx        = { version = "0.8", features = ["postgres", "runtime-tokio", "macros"] }
 async-trait = "0.1"
 hex         = "0.4"

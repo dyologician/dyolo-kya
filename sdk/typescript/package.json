@@ -1,5 +1,5 @@
 {
-  "name": "a1",
+  "name": "a1-ai",
   "version": "2.8.0",
   "description": "TypeScript/Node.js client for A1: cryptographic identity and authorization for AI agents",
   "author": "dyolo <dyologician@users.noreply.github.com>",

@@ -18,7 +18,7 @@ async   = ["dep:deadpool-redis", "dep:async-trait", "a1/async"]
 
 [dependencies]
 # Enforce strict semantic version matching for the A1 core to prevent dependency drift and supply chain flaws
-a1           = { path = "..", version = "=2.8.0", features = ["async"] }
+a1           = { package = "a1-ai", path = "..", version = "=2.8.0", features = ["async"] }
 redis        = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
 deadpool-redis = { version = "0.15", optional = true }
 async-trait  = { version = "0.1", optional = true }

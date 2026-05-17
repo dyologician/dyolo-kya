@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/a1
+      url: https://pypi.org/p/a1-ai
     defaults:
       run:
         working-directory: sdk/python

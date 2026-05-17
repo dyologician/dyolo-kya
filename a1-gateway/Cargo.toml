@@ -12,7 +12,7 @@ name = "a1-gateway"
 path = "src/main.rs"
 
 [dependencies]
-a1           = { path = "..", version = "=2.8.0", features = ["serde", "wire", "async", "tracing", "did", "zk", "anchor", "negotiate", "swarm", "governance"] }
+a1           = { package = "a1-ai", path = "..", version = "=2.8.0", features = ["serde", "wire", "async", "tracing", "did", "zk", "anchor", "negotiate", "swarm", "governance"] }
 a1-redis     = { path = "../a1-redis", version = "2.8" }
 a1-pg        = { path = "../a1-pg",    version = "2.8" }
 axum         = { version = "0.7", features = ["json", "macros"] }

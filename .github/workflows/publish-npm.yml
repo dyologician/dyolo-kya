@@ -18,7 +18,7 @@ jobs:
         working-directory: sdk/typescript
     environment:
       name: npm
-      url: https://www.npmjs.com/package/a1
+      url: https://www.npmjs.com/package/a1-ai
 
     steps:
       - name: Checkout repository
