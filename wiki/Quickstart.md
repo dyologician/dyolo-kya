@@ -16,8 +16,6 @@ You want to issue a passport for your AI agent and see how it works.
 cargo install a1-cli
 ```
 
-Or download a pre-built binary from the [Releases page](https://github.com/dyologician/a1/releases).
-
 ### Issue a passport
 
 ```bash
@@ -63,20 +61,15 @@ You are building an AI agent tool in Python and want to add authorization in one
 ### Install
 
 ```bash
-pip install a1
+pip install a1identity
 ```
 
 ### Start the gateway
 
 ```bash
-docker run -p 8080:8080 ghcr.io/dyologician/a1-gateway:2.8.0
-```
-
-Or start it locally:
-
-```bash
-cd a1
-docker compose up -d
+git clone https://github.com/dyologician/A1
+cd A1
+./setup.sh
 ```
 
 ### Issue a passport
@@ -91,7 +84,7 @@ a1 passport issue \
 ### Add the guard to your tool
 
 ```python
-from a1.passport import PassportClient, a1_guard
+from a1identity.passport import PassportClient, a1_guard
 
 client = PassportClient("http://localhost:8080")
 
@@ -106,7 +99,7 @@ The decorator reads `signed_chain` and `executor_pk_hex` from the function's kwa
 ### What if authorization fails?
 
 ```python
-from a1.passport import PassportError
+from a1identity.passport import PassportError
 
 try:
     result = await execute_trade(
@@ -125,11 +118,11 @@ except PassportError as e:
 ## Path C — TypeScript developer (one function)
 
 ```bash
-npm install a1
+npm install a1-ai
 ```
 
 ```typescript
-import { withA1Passport, PassportClient } from "a1/passport";
+import { withA1Passport, PassportClient } from "a1-ai/passport";
 
 const client = new PassportClient("http://localhost:8080");
 
@@ -185,7 +178,7 @@ receipt, err := guarded(ctx, TradeArgs{
 
 ```toml
 [dependencies]
-a1 = { version = "2.8", features = ["full"] }
+a1-ai = { version = "2.8", features = ["full"] }
 ```
 
 ```rust

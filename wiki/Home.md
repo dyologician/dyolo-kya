@@ -53,7 +53,7 @@ A1 closes this gap. It gives every agent in every delegation chain an unforgeabl
 - [Gateway API Reference](Gateway-API) — All REST endpoints, request/response schemas
 - [Error Codes](Error-Codes) — All `A1Error` variants, error codes, and HTTP status mappings
 - [Wire Format](../spec/A1-PROTOCOL.md) — Formal protocol specification (RFC-style)
-- [Rust API docs](https://docs.rs/a1) — Full rustdoc on docs.rs
+- [Rust API docs](https://docs.rs/a1-ai) — Full rustdoc on docs.rs
 
 ### SDK guides
 
@@ -119,7 +119,7 @@ A1 closes this gap. It gives every agent in every delegation chain an unforgeabl
 | Rust crate (a1-pg) | https://crates.io/crates/a1-pg |
 | Python package | https://pypi.org/project/a1 |
 | npm package | https://www.npmjs.com/package/a1 |
-| Rust API docs | https://docs.rs/a1 |
+| Rust API docs | https://docs.rs/a1-ai |
 | Security policy | [SECURITY.md](../SECURITY.md) |
 | Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Changelog | [CHANGELOG.md](../CHANGELOG.md) |

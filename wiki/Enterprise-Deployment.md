@@ -47,7 +47,7 @@ The gateway is **fully stateless at the application layer**. All state (nonces, 
 ```bash
 git clone https://github.com/dyologician/a1
 cd a1
-docker compose up -d
+./setup.sh
 ```
 
 The default `docker/docker-compose.yml` starts:
