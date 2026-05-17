@@ -861,9 +861,14 @@ mod passport_tests {
             &clock,
         )
         .unwrap();
-        let b =
-            DyoloPassport::issue_from_csv("ns", "trade.equity, portfolio.read", 3600, &root, &clock)
-                .unwrap();
+        let b = DyoloPassport::issue_from_csv(
+            "ns",
+            "trade.equity, portfolio.read",
+            3600,
+            &root,
+            &clock,
+        )
+        .unwrap();
         assert_eq!(a.capability_mask, b.capability_mask);
     }
 
