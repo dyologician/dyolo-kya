@@ -1328,7 +1328,8 @@ pub async fn remove_handler(Json(req): Json<RemoveRequest>) -> impl IntoResponse
                     format!("✗ Uninstall failed. Try running the command in your terminal.")
                 },
                 output: out,
-            }).into_response()
+            })
+            .into_response()
         }
         Err(e) => Json(RemoveResponse {
             success: false,
