@@ -247,6 +247,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/v1/system/status", get(routes::automagic::get_status))
         // System — graceful shutdown (Studio Stop button)
         .route("/v1/system/shutdown", post(system_shutdown_handler))
+        .route("/v1/system/force-stop", post(system_force_stop_handler))
         // Agents — disconnect (remove A1 from agent config)
         .route(
             "/v1/agents/disconnect",
@@ -332,6 +333,31 @@ async fn system_shutdown_handler() -> impl axum::response::IntoResponse {
         std::process::exit(0);
     });
     axum::Json(serde_json::json!({"ok": true, "message": "Shutting down A1 gateway"}))
+}
+
+async fn system_force_stop_handler() -> impl axum::response::IntoResponse {
+    // Stop all a1-related Docker containers regardless of which folder started them.
+    // This fixes the "A1 is already running" stuck state when containers are orphaned.
+    tokio::spawn(async {
+        tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+
+        // Find and stop all containers with "a1" or "gateway" in the name
+        let _ = tokio::process::Command::new("sh")
+            .arg("-c")
+            .arg("docker ps --filter 'name=a1' --filter 'name=gateway' -q | xargs -r docker stop; docker ps -a --filter 'name=a1' --filter 'name=gateway' -q | xargs -r docker rm")
+            .output()
+            .await;
+
+        // Then shut ourselves down too
+        #[cfg(unix)]
+        {
+            let pid = std::process::id();
+            unsafe { libc::kill(pid as libc::pid_t, libc::SIGTERM); }
+        }
+        #[cfg(not(unix))]
+        std::process::exit(0);
+    });
+    axum::Json(serde_json::json!({"ok": true, "message": "Force stopping all A1 containers…"}))
 }
 
 async fn shutdown_signal() {

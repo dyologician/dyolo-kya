@@ -44,6 +44,23 @@ function Lifecycle() {
     setHealth('stopped');
   }
 
+  async function forceStopAll() {
+    setStopping(true); setStopMsg(null);
+    try {
+      await fetch(gwUrl + '/v1/system/shutdown', {
+        method: 'POST', signal: AbortSignal.timeout(3000),
+      });
+    } catch (_) {}
+    try {
+      await fetch(gwUrl + '/v1/system/force-stop', {
+        method: 'POST', signal: AbortSignal.timeout(5000),
+      });
+    } catch (_) {}
+    setStopping(false);
+    setStopMsg('All A1 containers stopped. Run ./setup.sh to start again.');
+    setHealth('stopped');
+  }
+
   // One-click restart: shutdown → poll until healthy again (autostart/launchd
   // will restart the process automatically if it was set up).
   async function restartGateway() {
@@ -233,12 +250,21 @@ function Lifecycle() {
               : 'Starts the A1 gateway. Protected agents resume normal operation.'),
           h('div', { className: 'lc-actions' },
             running
-              ? h('button', {
-                  className: 'btn btn-sm',
-                  style: { background: 'rgba(239,68,68,.15)', color: '#ef4444', border: 'none', borderRadius: 'var(--r)', padding: '5px 12px', cursor: 'pointer', fontSize: 'var(--fxs)', fontWeight: 600 },
-                  disabled: stopping || restarting,
-                  onClick: stopGateway,
-                }, stopping ? 'Stopping…' : 'Stop A1')
+              ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: 5 } },
+                  h('button', {
+                    className: 'btn btn-sm',
+                    style: { background: 'rgba(239,68,68,.15)', color: '#ef4444', border: 'none', borderRadius: 'var(--r)', padding: '5px 12px', cursor: 'pointer', fontSize: 'var(--fxs)', fontWeight: 600 },
+                    disabled: stopping || restarting,
+                    onClick: stopGateway,
+                  }, stopping ? 'Stopping…' : 'Stop A1'),
+                  h('button', {
+                    className: 'btn btn-sm',
+                    style: { background: 'rgba(239,68,68,.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,.25)', borderRadius: 'var(--r)', padding: '4px 10px', cursor: 'pointer', fontSize: 10 },
+                    disabled: stopping || restarting,
+                    onClick: forceStopAll,
+                    title: 'Stops all A1 Docker containers, including ones started from other folders',
+                  }, '⚡ Force stop all containers')
+                )
               : h('div', { style: { display: 'flex', flexDirection: 'column', gap: 6 } },
                   h('div', { style: { fontFamily: 'var(--mono)', fontSize: 11, background: 'var(--b1)', border: '1px solid var(--b3)', borderRadius: 'var(--r)', padding: '5px 8px', color: 'var(--t1)', display: 'flex', gap: 6, alignItems: 'center' } },
                     h('span', null, './setup.sh'),

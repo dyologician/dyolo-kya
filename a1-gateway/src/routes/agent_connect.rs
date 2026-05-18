@@ -1146,14 +1146,17 @@ pub async fn pull_handler(
                 .event("log")
                 .data(format!("⚠ A1 is running inside Docker and cannot install software on your computer directly."))
             )).await;
-            let _ = tx.send(Ok(Event::default()
-                .event("log")
-                .data(format!("Open your terminal and run this command to install {}:", agent_id))
-            )).await;
-            let _ = tx.send(Ok(Event::default()
-                .event("log")
-                .data(format!("$ {install_cmd}"))
-            )).await;
+            let _ = tx
+                .send(Ok(Event::default().event("log").data(format!(
+                    "Open your terminal and run this command to install {}:",
+                    agent_id
+                ))))
+                .await;
+            let _ = tx
+                .send(Ok(Event::default()
+                    .event("log")
+                    .data(format!("$ {install_cmd}"))))
+                .await;
             let _ = tx.send(Ok(Event::default()
                 .event("done")
                 .data(serde_json::to_string(&json!({

@@ -183,6 +183,14 @@ switch ($Command) {
                elseif (Test-Path "docker-compose.yml")   { "docker-compose.yml" }
                else { $null }
         if ($cf) { try { docker compose -f $cf down 2>$null | Out-Null } catch {} }
+        # Kill any leftover a1-related containers from other folders/runs
+        try {
+            $stale = docker ps --filter "name=a1" --filter "name=gateway" -q 2>$null
+            if ($stale) {
+                Write-Warn "Stopping leftover A1 containers…"
+                $stale | ForEach-Object { docker stop $_ 2>$null | Out-Null; docker rm $_ 2>$null | Out-Null }
+            }
+        } catch {}
         Write-Host ""
         exit 0
     }

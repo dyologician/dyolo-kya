@@ -381,6 +381,16 @@ cmd_stop() {
   if [ -n "${cf:-}" ] && command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
     docker compose -f "${cf}" down --quiet 2>/dev/null || true
   fi
+  # Kill any leftover a1-related containers from other folders/runs
+  if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
+    local stale
+    stale=$(docker ps --filter "name=a1" --filter "name=gateway" -q 2>/dev/null)
+    if [ -n "${stale}" ]; then
+      echo -e "  ${YELLOW}Stopping leftover A1 containers…${RESET}"
+      echo "${stale}" | xargs docker stop 2>/dev/null || true
+      echo "${stale}" | xargs docker rm 2>/dev/null || true
+    fi
+  fi
   echo ""
 }
 
