@@ -308,7 +308,7 @@ function ProtectAgent({ prefill, onPrefillConsumed }){
           onClick:()=>{if(name.trim()&&caps.length>0)setStep(2);},
           disabled:!name.trim()||caps.length===0,
           style:{fontSize:'var(--fbase)',padding:'10px 22px'}},
-          'Generate setup command →'),
+          'Continue to create passport →'),
         !name.trim()&&h('span',{style:{color:'#ef4444',fontSize:'var(--fsm)'}},'⚠ Enter an agent name to continue'),
         name.trim()&&caps.length===0&&h('span',{style:{color:'var(--t2)',fontSize:'var(--fsm)'}},'Select at least one capability'))),
 
@@ -406,10 +406,12 @@ function ProtectAgent({ prefill, onPrefillConsumed }){
                   }else{r={success:false,error:e.message};}
                 }
                 setIssueResult(r);setIssuingPassport(false);
-                // Notify Connect Agents (and any other tab) that a new passport exists
-                if(r&&r.success) window.dispatchEvent(new CustomEvent('a1-passport-changed'));
+                if(r&&r.success){
+                  window.dispatchEvent(new CustomEvent('a1-passport-changed'));
+                  setTimeout(()=>setStep(3),1800);
+                }
               }
-            },issuingPassport?'Creating…':'🛡 Create Passport'),
+            },issuingPassport?'Creating…':(issueResult&&issueResult.success)?'✅ Created — moving to connect…':'🛡 Create Passport'),
             issueResult&&issueResult.success&&h('button',{className:'btn btn-s btn-sm',
               onClick:()=>navigator.clipboard.writeText(issueResult.path||'')},'Copy path ↗')))),
 
@@ -419,7 +421,7 @@ function ProtectAgent({ prefill, onPrefillConsumed }){
           style:{fontSize:'var(--fbase)',padding:'10px 22px'},
           disabled:!(issueResult&&issueResult.success),
           onClick:()=>setStep(3)},
-          'Next → Connect →'),
+          (issueResult&&issueResult.success)?'Next → Connect →':'Create passport first ↑'),
         // Escape hatch — if user already created a passport (e.g. navigated away
         // then came back), let them confirm against the gateway and proceed.
         !(issueResult&&issueResult.success)&&h('button',{

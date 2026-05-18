@@ -794,17 +794,17 @@ function QuickStart() {
 
   function advance(next) {
     setCurrentStep(next);
-    if (next === 'done') setAllDone(true);
+    if (next === 'done') { setAllDone(true); setOnboarded(); }
   }
 
   return h('div', { style: { paddingBottom: 48, maxWidth: 620 } },
 
     h('div', { style: { marginBottom: 20 } },
       h('h2', { style: { fontSize: 20, fontWeight: 700, marginBottom: 4 } },
-        '🚀 Quick Start — One path, fully automatic'
+        '🚀 Setup — Get your first agent protected'
       ),
       h('p', { style: { color: 'var(--t2)', fontSize: 'var(--fsm)', margin: 0, lineHeight: 1.6 } },
-        'This tab does everything. No terminal needed after setup. Just follow the steps below — each completes automatically.'
+        'Follow these steps — each one completes on its own. No code, no terminal.'
       )
     ),
 

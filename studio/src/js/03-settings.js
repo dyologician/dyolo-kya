@@ -8,6 +8,7 @@ const DEFAULTS={
   showFullIds:false,pollMs:4000,logMax:200,autoScroll:true,
   theme:'dark',density:'auto',fontSize:13,
   developerMode:false,
+  simpleMode:true,
 };
 
 function loadS(){try{const r=localStorage.getItem(LS);if(r)return{...DEFAULTS,...JSON.parse(r),showSecret:false};}catch{}return{...DEFAULTS};}

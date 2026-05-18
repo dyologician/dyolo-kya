@@ -15,6 +15,9 @@
 .sb-foot{padding:10px 14px;border-top:1px solid var(--b1);display:flex;flex-direction:column;gap:6px;}
 .theme-btn{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:var(--fsm);color:var(--t2);background:none;border:1px solid var(--b1);border-radius:var(--r);padding:6px 10px;width:100%;font-family:var(--mono);transition:color .1s,border-color .1s;}
 .theme-btn:hover{color:var(--text);border-color:var(--b2);}
+.mode-pill{display:flex;align-items:center;background:var(--b1);border-radius:20px;padding:3px;gap:2px;width:100%;box-sizing:border-box;}
+.mode-pill-btn{flex:1;padding:5px 0;border:none;border-radius:16px;cursor:pointer;font-size:10px;font-family:var(--mono);font-weight:600;letter-spacing:.04em;text-align:center;transition:all .18s;color:var(--t2);background:none;}
+.mode-pill-btn.active{background:var(--s3);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.25);}
 
 /* main */
 .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}

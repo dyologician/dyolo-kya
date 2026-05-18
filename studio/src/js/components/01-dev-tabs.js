@@ -332,14 +332,28 @@ function Settings({settings,onUpdate,health,onShowOnboard}){
     h('div',{className:'sg'},
       h('div',{className:'sg-head'},'Mode'),
       h('div',{className:'sg-body'},
-        h(ToggleRow,{
-          label:'Developer Mode',
-          sub:'Show advanced sections: Monitor logs, raw Passports, Swarms, DID & VC, Authorize, Compliance, and Direct Connect. Turn off to keep the sidebar clean.',
-          checked:loc.developerMode,
-          onChange:v=>{ upd('developerMode',v); onUpdate({...loc,developerMode:v}); }
-        }),
-        !loc.developerMode&&h('div',{style:{marginTop:8,padding:'8px 10px',background:'var(--s2)',border:'1px solid var(--b1)',borderRadius:'var(--r)',fontSize:'var(--fxs)',color:'var(--t2)',lineHeight:'1.6'}},
-          '\u2705 Simple mode — Redis, Postgres, KMS, Swarms, and Compliance are hidden. They\'re only needed for production team deployments. Most people never need them.'
+        h('p',{style:{fontSize:'var(--fxs)',color:'var(--t2)',marginBottom:10,lineHeight:1.6}},
+          'Use the pill at the top of the sidebar to switch modes anytime.'),
+        h('div',{className:'mode-pill',style:{maxWidth:260,marginBottom:10}},
+          h('button',{
+            className:'mode-pill-btn'+(loc.simpleMode?' active':''),
+            onClick:()=>{ upd('simpleMode',true); upd('developerMode',false); onUpdate({...loc,simpleMode:true,developerMode:false}); }
+          },'Simple'),
+          h('button',{
+            className:'mode-pill-btn'+(!loc.simpleMode&&!loc.developerMode?' active':''),
+            onClick:()=>{ upd('simpleMode',false); upd('developerMode',false); onUpdate({...loc,simpleMode:false,developerMode:false}); }
+          },'Advanced'),
+          h('button',{
+            className:'mode-pill-btn'+(loc.developerMode?' active':''),
+            onClick:()=>{ upd('simpleMode',false); upd('developerMode',true); onUpdate({...loc,simpleMode:false,developerMode:true}); }
+          },'Dev')
+        ),
+        h('div',{style:{padding:'8px 10px',background:'var(--b1)',borderRadius:'var(--r)',fontSize:'var(--fxs)',color:'var(--t2)',lineHeight:1.7}},
+          loc.simpleMode
+            ? '✅ Simple — Dashboard, Setup, My Agents, Passports, Start/Stop, Help.'
+            : loc.developerMode
+            ? '⚙ Dev — everything including raw gateway monitor, Swarms, DID & VC, Authorize tester.'
+            : '🔧 Advanced — all tabs including Manual Setup, Examples, AI Integration, How It Works.'
         )
       )
     ),

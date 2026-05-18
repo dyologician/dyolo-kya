@@ -1,41 +1,45 @@
+// simpleMode: visible in Simple, Advanced, and Dev
+// advancedOnly: hidden in Simple mode
+// devOnly: only visible in Dev mode
 const TABS = [
-  { id: 'quickstart', label: 'Quick Setup',      icon: '🚀', group: 'Get Started',
-    hint: 'Automated setup — A1 walks you through everything, no commands needed' },
-  { id: 'wizard',     label: 'Protect My Agent', icon: '🛡', group: 'Get Started',
-    hint: 'Create a cryptographic passport for any AI agent — manual control' },
-  { id: 'agents',     label: 'Connect Agents',   icon: '🔌', group: 'Get Started',
-    hint: 'Link A1 to Claude Code, ChatGPT, LangChain, and more' },
-  { id: 'chat',       label: 'Test Connection',  icon: '✅',  group: 'Get Started',
-    hint: 'Send a test message to confirm your agent is protected' },
-  { id: 'gallery',    label: 'Examples',         icon: '🧪', group: 'Get Started',
+  { id: 'dashboard',  label: 'Dashboard',      icon: '📊', group: 'Get Started',
+    hint: 'See what A1 is protecting and recent activity' },
+  { id: 'quickstart', label: 'Setup',           icon: '🚀', group: 'Get Started',
+    hint: 'Step-by-step: create a passport and connect your agent — no code required' },
+  { id: 'agents',     label: 'My Agents',       icon: '🤖', group: 'Get Started',
+    hint: 'Connect, manage, and monitor your AI agents' },
+  { id: 'vault',      label: 'Passports',       icon: '🗂', group: 'Get Started',
+    hint: 'View, renew, or revoke agent passports' },
+  { id: 'lifecycle',  label: 'Start / Stop',    icon: '⚡', group: 'Get Started',
+    hint: 'Start, stop, or restart A1 — enable auto-start on login' },
+  { id: 'errors',     label: 'Help',            icon: '🔎', group: 'Get Started',
+    hint: 'Plain-English explanations and fix steps for any error' },
+
+  { id: 'wizard',     label: 'Manual Setup',    icon: '🛡', group: 'Advanced', advancedOnly: true,
+    hint: 'Step-by-step manual setup — pick capabilities, create passport, connect agent' },
+  { id: 'chat',       label: 'Test A1',         icon: '✅', group: 'Advanced', advancedOnly: true,
+    hint: 'Call A1 MCP tools directly and see raw JSON responses' },
+  { id: 'gallery',    label: 'Examples',        icon: '🧪', group: 'Advanced', advancedOnly: true,
     hint: 'One-click example agents — pre-filled passport, capabilities, and code' },
-
-  { id: 'vault',      label: 'Passports',        icon: '🗂', group: 'Manage',
-    hint: 'All passports — sorted by urgency, renew or revoke, backup and restore' },
-  { id: 'lifecycle',  label: 'Start / Stop',     icon: '⚡',  group: 'Manage',
-    hint: 'Start, stop, or restart A1 · enable auto-start on login' },
-  { id: 'errors',     label: 'Error Help',       icon: '🔎', group: 'Manage',
-    hint: 'Plain-English explanations and fix steps for any A1 error' },
-
-  { id: 'assistant',  label: 'AI Tools',         icon: '🧠', group: 'Advanced',
-    hint: 'AI Assistant + Local LLM — ask about A1, connect Ollama, LM Studio, llama.cpp' },
-  { id: 'integrate',  label: 'AI Integration',   icon: '🤝', group: 'Advanced',
-    hint: 'Automatically add A1 to your existing agent source files' },
-  { id: 'direct',     label: 'Direct Connect',   icon: '⚙',  group: 'Advanced', devOnly: true,
-    hint: 'Low-level MCP probe and relay for custom agent setups' },
-  { id: 'howitworks', label: 'How It Works',     icon: '📖', group: 'Advanced',
+  { id: 'assistant',  label: 'AI Tools',        icon: '🧠', group: 'Advanced', advancedOnly: true,
+    hint: 'AI Assistant + Local LLM — connect Ollama, LM Studio, llama.cpp' },
+  { id: 'integrate',  label: 'AI Integration',  icon: '🤝', group: 'Advanced', advancedOnly: true,
+    hint: 'Auto-add A1 to your existing agent source files' },
+  { id: 'howitworks', label: 'How It Works',    icon: '📖', group: 'Advanced', advancedOnly: true,
     hint: 'The cryptographic identity model behind A1' },
+  { id: 'direct',     label: 'Direct Connect',  icon: '⚙', group: 'Advanced', advancedOnly: true, devOnly: true,
+    hint: 'Low-level MCP probe and relay for custom agent setups' },
 
-  { id: 'devtools',   label: 'Dev Tools',        icon: '⌥',  group: 'Developer', devOnly: true,
+  { id: 'devtools',   label: 'Dev Tools',       icon: '⌥', group: 'Developer', advancedOnly: true, devOnly: true,
     hint: 'Gateway monitor, live log, raw passport ops, swarms, DID & VC, authorize testing, compliance' },
 
-  { id: 'settings',   label: 'Settings',         icon: '⚙',  group: 'Config' },
+  { id: 'settings',   label: 'Settings',        icon: '⚙', group: 'Config' },
 ];
 
-const GROUPS = ['Get Started', 'Manage', 'Advanced', 'Developer', 'Config'];
+const GROUPS = ['Get Started', 'Advanced', 'Developer', 'Config'];
 
 function App() {
-  const [tab, setTab]                 = useState(!hasOnboarded() ? 'quickstart' : 'vault');
+  const [tab, setTab]                 = useState(!hasOnboarded() ? 'quickstart' : 'dashboard');
   const [settings, setSettings]       = useState(loadS);
   const [health, setHealth]           = useState(null);
   const [logs, setLogs]               = useState([]);
@@ -69,8 +73,16 @@ function App() {
   }, [helpMode]);
 
   function navigate(dest) {
-    if (typeof dest === 'string') setTab(dest);
-    else if (dest?.tab) { setTab(dest.tab); if (dest.prefill) setWizardPrefill(dest.prefill); }
+    // In simple mode, 'wizard' is hidden — redirect to quickstart instead
+    function resolveTab(t) {
+      if (t === 'wizard' && settings.simpleMode && !settings.developerMode) return 'quickstart';
+      return t;
+    }
+    if (typeof dest === 'string') setTab(resolveTab(dest));
+    else if (dest?.tab) {
+      setTab(resolveTab(dest.tab));
+      if (dest.prefill) setWizardPrefill(dest.prefill);
+    }
     setMobileSb(false);
   }
 
@@ -78,7 +90,7 @@ function App() {
     function onNav(e) { if (e.detail) navigate(e.detail); }
     window.addEventListener('a1-navigate', onNav);
     return () => window.removeEventListener('a1-navigate', onNav);
-  }, []);
+  }, [settings.simpleMode, settings.developerMode]);
 
   const addLog = useCallback(e => {
     setLogs(prev => { const next = [...prev, e]; return next.length > settings.logMax ? next.slice(-settings.logMax) : next; });
@@ -93,7 +105,15 @@ function App() {
 
   useEffect(() => { poll(); const t = setInterval(poll, settings.pollMs); return () => clearInterval(t); }, [poll, settings.pollMs]);
 
-  function updateSettings(s) { setSettings(s); saveS(s); applyScaling(s); }
+  function updateSettings(s) {
+    setSettings(s); saveS(s); applyScaling(s);
+    // If switching to simple mode while on an advancedOnly tab, go to dashboard
+    const goingSimple = s.simpleMode && !s.developerMode;
+    if (goingSimple) {
+      const currentTabDef = TABS.find(t => t.id === tab);
+      if (currentTabDef?.advancedOnly) setTab('dashboard');
+    }
+  }
 
   const errC = logs.filter(l => !l.ok).length;
   const ctx  = { settings, api, addLog };
@@ -101,6 +121,7 @@ function App() {
   function closeOnboard() { setShowOnboard(false); setOnboarded(); }
 
   const CONTENT = {
+    dashboard:    h(ActivityDashboard, null),
     quickstart:   h(QuickStart, null),
     wizard:       h(ProtectAgent, { prefill: wizardPrefill, onPrefillConsumed: () => setWizardPrefill(null) }),
     agents:       h(ConnectAgents, null),
@@ -127,24 +148,49 @@ function App() {
     h('div', { id: 'root' },
 
       h('div', { className: 'sb' + (mobileSb ? ' mobile-open' : ''), 'data-help': 'sidebar' },
+
+        // ── Logo + Mode pill ─────────────────────────────────────────────────
         h('div', { className: 'sb-logo' },
-          h('div', { className: 'logo-mark' }, 'A1'),
-          h('div', { className: 'logo-sub' }, 'Studio')
+          h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } },
+            h('div', null,
+              h('div', { className: 'logo-mark' }, 'A1'),
+              h('div', { className: 'logo-sub' }, 'Studio')
+            ),
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 5 } },
+              h('div', { className: 'dot dot-pulse dot-' + (health ? 'green' : 'red'), style: { width: 7, height: 7 } }),
+              !health && h('span', {
+                style: { fontSize: 10, color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--mono)' },
+                onClick: () => setTab('lifecycle')
+              }, 'offline')
+            )
+          ),
+          h('div', { className: 'mode-pill' },
+            h('button', {
+              className: 'mode-pill-btn' + (settings.simpleMode ? ' active' : ''),
+              onClick: () => updateSettings({ ...settings, simpleMode: true, developerMode: false }),
+              title: 'Simple — clean view for everyday use'
+            }, 'Simple'),
+            h('button', {
+              className: 'mode-pill-btn' + (!settings.simpleMode && !settings.developerMode ? ' active' : ''),
+              onClick: () => updateSettings({ ...settings, simpleMode: false, developerMode: false }),
+              title: 'Advanced — full tools for power users'
+            }, 'Advanced'),
+            h('button', {
+              className: 'mode-pill-btn' + (settings.developerMode ? ' active' : ''),
+              onClick: () => updateSettings({ ...settings, simpleMode: false, developerMode: true }),
+              title: 'Dev — everything including raw tools and monitors'
+            }, 'Dev')
+          )
         ),
 
-        h('div', { style: { padding: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 6 } },
-          h('div', { className: 'dot dot-pulse dot-' + (health ? 'green' : 'red'), style: { width: 7, height: 7 } }),
-          h('span', { style: { fontSize: 'var(--fxs)', color: health ? 'var(--green)' : '#ef4444', fontWeight: 600 } },
-            health ? 'A1 running' : 'A1 offline'),
-          !health && h('span', {
-            style: { fontSize: 'var(--fxs)', color: 'var(--accent)', cursor: 'pointer', marginLeft: 2 },
-            onClick: () => setTab('lifecycle')
-          }, '→ fix')
-        ),
-
+        // ── Nav ──────────────────────────────────────────────────────────────
         h('div', { className: 'sb-nav' },
           ...GROUPS.flatMap(g => {
-            const groupTabs = TABS.filter(t => t.group === g && (!t.devOnly || settings.developerMode));
+            const groupTabs = TABS.filter(t =>
+              t.group === g &&
+              (!t.devOnly || settings.developerMode) &&
+              (!t.advancedOnly || !settings.simpleMode || settings.developerMode)
+            );
             if (groupTabs.length === 0) return [];
             return [
               h('div', {
@@ -173,6 +219,7 @@ function App() {
           })
         ),
 
+        // ── Footer ───────────────────────────────────────────────────────────
         h('div', { className: 'sb-foot' },
           h('button', {
             className: 'theme-btn', 'data-help': 'theme-btn',
@@ -237,12 +284,8 @@ function AgentsBadge() {
   useEffect(() => {
     fetch((settings.gwUrl || 'http://localhost:8080') + '/v1/agents/scan')
       .then(r => r.json())
-      .then(d => {
-        const agents = d.agents || [];
-        setCount(agents.filter(a => a.connected).length);
-      })
+      .then(d => setCount((d.agents || []).filter(a => a.connected).length))
       .catch(() => {});
-    // Refresh every 30 seconds
     const t = setInterval(() => {
       fetch((settings.gwUrl || 'http://localhost:8080') + '/v1/agents/scan')
         .then(r => r.json())

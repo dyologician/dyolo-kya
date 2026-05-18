@@ -352,9 +352,9 @@ function Lifecycle() {
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 10 } },
           [
             { title: 'Close this Studio tab', body: 'Just close the browser tab. A1 keeps running — your agents stay protected.' },
-            { title: 'Stop A1 completely', body: ['Run ', h('code', { style: { fontFamily: 'var(--mono)', background: 'var(--b1)', padding: '1px 5px', borderRadius: 3 } }, 'a1 stop'), ' in your terminal, or click "Stop A1" above.'] },
+            { title: 'Stop A1 completely', body: ['Click "Stop A1" above, or run ', h('code', { style: { fontFamily: 'var(--mono)', background: 'var(--b1)', padding: '1px 5px', borderRadius: 3 } }, './setup.sh stop'), ' in your terminal.'] },
             { title: 'Disconnect a specific agent', body: 'Go to "Connect Agents" → find the agent → click Disconnect.' },
-            { title: 'Start A1 again later', body: ['Run ', h('code', { style: { fontFamily: 'var(--mono)', background: 'var(--b1)', padding: '1px 5px', borderRadius: 3 } }, 'a1 start'), ' — all your passports and settings are preserved.'] },
+            { title: 'Start A1 again later', body: ['Run ', h('code', { style: { fontFamily: 'var(--mono)', background: 'var(--b1)', padding: '1px 5px', borderRadius: 3 } }, './setup.sh'), ' or double-click setup.sh — all your passports and settings are preserved.'] },
           ].map(({ title, body }) =>
             h('div', { key: title },
               h('div', { style: { fontWeight: 600, fontSize: 'var(--fsm)', marginBottom: 3 } }, title),
@@ -401,8 +401,8 @@ function Lifecycle() {
             {
               n: '5', title: 'Still stuck',
               body: 'Ask for help with the full error:',
-              code: 'a1 start --verbose 2>&1 | tail -30',
-              fix: 'Paste the output at github.com/dyologician/a1/issues',
+              code: 'docker compose logs gateway 2>&1 | tail -30',
+              fix: 'Paste the output at github.com/dyologician/A1/issues',
             },
           ].map(item => h('div', { key: item.n, style: { borderLeft: '2px solid var(--b3)', paddingLeft: 12 } },
             h('div', { style: { fontWeight: 700, fontSize: 'var(--fsm)', marginBottom: 4 } }, item.n + '. ' + item.title),

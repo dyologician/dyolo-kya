@@ -72,13 +72,14 @@ function ActivityDashboard() {
     // ── Status bar ────────────────────────────────────────────────────────────
     h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 } },
       ...[
-        { label: 'A1 Status',         value: running ? '🟢 Running' : '🔴 Stopped', color: running ? 'var(--green)' : '#ef4444' },
+        { label: 'A1 Status',         value: running ? '🟢 Running' : '🔴 Not running', color: running ? 'var(--green)' : '#ef4444', action: running ? null : 'start' },
         { label: 'Protected agents',  value: active,   color: 'var(--green)' },
         { label: 'Expiring soon',     value: expiring, color: expiring > 0 ? '#ca8a04' : 'var(--t2)' },
         { label: 'Expired',           value: expired,  color: expired > 0 ? '#ef4444' : 'var(--t2)' },
-      ].map(s => h('div', { key: s.label, style: { background: 'var(--b2)', border: '1px solid var(--b3)', borderRadius: 'var(--r)', padding: '14px 16px' } },
+      ].map(s => h('div', { key: s.label, style: { background: 'var(--b2)', border: '1px solid var(--b3)', borderRadius: 'var(--r)', padding: '14px 16px', cursor: s.action ? 'pointer' : 'default' }, onClick: s.action === 'start' ? () => window.dispatchEvent(new CustomEvent('a1-navigate', { detail: 'lifecycle' })) : undefined },
         h('div', { style: { fontSize: 22, fontWeight: 700, color: s.color, marginBottom: 4 } }, s.value),
-        h('div', { style: { fontSize: 'var(--fxs)', color: 'var(--t2)' } }, s.label)
+        h('div', { style: { fontSize: 'var(--fxs)', color: 'var(--t2)' } }, s.label),
+        s.action === 'start' && h('div', { style: { fontSize: 10, color: s.color, marginTop: 4 } }, 'Click to start →')
       ))
     ),
 
@@ -129,7 +130,7 @@ function ActivityDashboard() {
           h('div', { style: { fontSize: 'var(--fxs)', marginBottom: 14 } }, 'Create a passport to start protecting your AI agents.'),
           h('button', {
             className: 'btn btn-p',
-            onClick: () => window.dispatchEvent(new CustomEvent('a1-navigate', { detail: 'wizard' })),
+            onClick: () => window.dispatchEvent(new CustomEvent('a1-navigate', { detail: 'quickstart' })),
           }, '🛡 Protect my first agent')
         )
       )
